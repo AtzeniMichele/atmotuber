@@ -14,7 +14,7 @@ import 'package:collection/src/list_extensions.dart';
 // TODO: store history data
 // TODO: check values of history data conversion
 
-class AtmotuberBLE {
+class Atmotuber {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   late BluetoothDevice? device;
   final dataType = ['status', 'bme', 'pm', 'voc'];
