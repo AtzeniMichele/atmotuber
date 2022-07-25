@@ -1,7 +1,7 @@
 name: atmotuber
 description: A new Flutter package for BLE comunication with ATMOTUBE Pro.
 version: 0.0.1
-homepage: https://github.com/AtzeniMichele/Atmotuber
+homepage: https://github.com/AtzeniMichele/atmotuber
 
 environment:
   sdk: ">=2.17.5 <3.0.0"
