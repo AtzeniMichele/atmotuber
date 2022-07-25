@@ -19,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   //List<dynamic> values = [];
   List<String> names = ['status', 'BME280', 'PM', 'VOC'];
   ValueNotifier<AtmotubeData> dataGot = ValueNotifier(AtmotubeData());
+  ValueNotifier<AtmotubeData> history = ValueNotifier(AtmotubeData());
   late String _status;
 
   Future<void> connectDevice() async {
@@ -40,7 +41,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> dataHist() async {
-    await atm2.hist_wrapper();
+    await atm2.hist_wrapper(callback: (hist_streams) {
+      history.value = hist_streams;
+      print(history.value.BME280);
+      print(history.value.PM);
+      print(history.value.VOC);
+    });
   }
 
   @override

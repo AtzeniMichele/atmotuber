@@ -7,11 +7,20 @@ import 'dart:typed_data';
 import 'package:rxdart/rxdart.dart';
 
 class DataConversion {
-  dynamic getConversion(List<int> byteList, int rangeStart, int rangeStop) {
+  dynamic getConversion(List<int> byteList, int rangeStart, int rangeStop,
+      {bool reversed = true}) {
     dynamic data;
+    final List<int> data_range;
 
-    final data_range =
-        byteList.getRange(rangeStart, rangeStop + 1).toList().reversed.toList();
+    if (reversed) {
+      data_range = byteList
+          .getRange(rangeStart, rangeStop + 1)
+          .toList()
+          .reversed
+          .toList();
+    } else {
+      data_range = byteList.getRange(rangeStart, rangeStop + 1).toList();
+    }
 
     int byteLen = data_range.length;
     if (byteLen * 8 == 24) {

@@ -10,15 +10,15 @@ import 'package:atmotuber/src/utils.dart';
 import 'package:collection/src/list_extensions.dart';
 
 // TODO: check status and interrupt getData
-// TODO: generalize for different packet numbers
-// TODO: store history data
-// TODO: check values of history data conversion
+// TODO: check if already connected, if yes, all actions can be executed
+// TODO: add timestamp for each point of values
 
 class Atmotuber {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   late BluetoothDevice? device;
   final dataType = ['status', 'bme', 'pm', 'voc'];
   var atmotubeData = const AtmotubeData();
+  var atmotubeDataHist = const AtmotubeData();
 
   static BluetoothDeviceState _deviceState = BluetoothDeviceState.disconnected;
 
@@ -141,7 +141,7 @@ class Atmotuber {
                 element.uuid.toString() ==
                 DeviceServiceConfig().bmeCharacteristic);
             data3 = await getValues(c, [0, 1, 2], [0, 1, 5]);
-            data3[2] = data3[2] / 100;
+            data3[2] = data3[2] / 100; // from mbar * 100 to mbar
             //atmotubeData = atmotubeData.copyWith(BME280: data);
           }
           break;
@@ -161,7 +161,7 @@ class Atmotuber {
                 element.uuid.toString() ==
                 DeviceServiceConfig().vocCharacteristics);
             data5 = await getValues(c, [0], [1]);
-            data5 = data5.map((e) => e / 1000).toList();
+            data5 = data5.map((e) => e / 1000).toList(); // from ppb to ppm
             //atmotubeData = atmotubeData.copyWith(VOC: data);
           }
           break;
@@ -197,11 +197,19 @@ class Atmotuber {
     });
   }
 
-  Future<void> hist_wrapper() async {
+  Future<void> hist_wrapper({required Function callback}) async {
     BluetoothService service = await getUartAtmotubeService();
     List<BluetoothCharacteristic> characteristics =
         await getCharacteristics(service);
-    var hist_data = getHist(characteristics);
+    getHist(characteristics);
+    Stream<AtmotubeData> hist_data = getAtmotubeHistObject();
+    hist_data.listen((event) {
+      callback(event);
+    });
+  }
+
+  Stream<AtmotubeData> getAtmotubeHistObject() async* {
+    yield atmotubeDataHist;
   }
 
   void getHist(List<BluetoothCharacteristic> characteristics) {
@@ -223,7 +231,9 @@ class Atmotuber {
     int packet_total = 0;
     int packet_dim = 0;
 
-    StreamSubscription<List<int>> history = rx.value.listen((event) {
+    var stream = rx.value.asBroadcastStream();
+
+    stream.listen((event) {
       final response = utf8.decoder.convert(event.getRange(0, 2).toList());
       print('The device response is {$response}');
 
@@ -259,26 +269,35 @@ class Atmotuber {
             previous_packet_number = packet_number;
 
             for (int i in Iterable<int>.generate(diff).toList()) {
-              List<int> subset =
-                  data.getRange(i * 15, (i + 1) * 15 - 1).toList();
+              List<int> subset = data.getRange(i * 16, (i * 16) + 15).toList();
 
               print(subset.length);
 
-              int temp = DataConversion().getConversion(subset, 0, 0);
-              int humidity = DataConversion().getConversion(subset, 1, 1);
-              int voc = DataConversion().getConversion(subset, 2, 3);
-              int pressure = DataConversion().getConversion(subset, 4, 7);
-              int pm1 = DataConversion().getConversion(subset, 8, 9);
-              int pm2 = DataConversion().getConversion(subset, 10, 11);
-              int pm10 = DataConversion().getConversion(subset, 12, 13);
+              int temp = DataConversion().getConversion(subset, 0, 0); // %
+              int humidity = DataConversion().getConversion(subset, 1, 1); // %
+              double voc = DataConversion().getConversion(subset, 2, 3) /
+                  1000; // from ppb to ppm
+              double pressure = DataConversion().getConversion(subset, 4, 7) /
+                  100; // from mbar * 100 to mbar
+              int pm1 =
+                  DataConversion().getConversion(subset, 8, 9); // microg / m3
+              int pm2 =
+                  DataConversion().getConversion(subset, 10, 11); // microg / m3
+              int pm10 =
+                  DataConversion().getConversion(subset, 12, 13); // microg / m3
 
-              print('temperature is: {$temp}');
-              print('humidity is: {$humidity}');
-              print('voc is: {$voc}');
-              print('pressure is: {$pressure}');
-              print('pm1 is: {$pm1}');
-              print('pm2 is: {$pm2}');
-              print('pm10 is: {$pm10}');
+              // print('temperature is: {$temp}');
+              // print('humidity is: {$humidity}');
+              // print('voc is: {$voc}');
+              // print('pressure is: {$pressure}');
+              // print('pm1 is: {$pm1}');
+              // print('pm2 is: {$pm2}');
+              // print('pm10 is: {$pm10}');
+
+              atmotubeDataHist = atmotubeDataHist.copyWith(
+                  BME280: [temp, humidity, pressure],
+                  PM: [pm1, pm2, pm10, 0],
+                  VOC: [voc]);
             }
 
             if (packet_number == packet_total) {
