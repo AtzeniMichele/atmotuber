@@ -14,3 +14,5 @@ export 'package:atmotuber/src/model.dart';
 
 // errors
 export 'package:atmotuber/src/errors/AtmotubeException.dart';
+export 'package:atmotuber/src/errors/AtmotubeNotNearException.dart';
+export 'package:atmotuber/src/errors/AtmotubeConnectionException.dart';

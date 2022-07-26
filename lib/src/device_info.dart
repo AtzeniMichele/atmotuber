@@ -1,4 +1,4 @@
-/// Configuration for a serial service
+/// [DeviceServiceConfig] is the configuration for a serial service (real-time data)
 class DeviceServiceConfig {
   final String deviceName = 'ATMOTUBE';
 
@@ -12,11 +12,4 @@ class DeviceServiceConfig {
   final String pmCharacteristic = 'db450005-8e9a-4818-add7-6ed94a328ab4';
 
   final String vocCharacteristics = 'db450002-8e9a-4818-add7-6ed94a328ab4';
-
-  final List<String> chars = [
-    'db450004-8e9a-4818-add7-6ed94a328ab4',
-    'db450003-8e9a-4818-add7-6ed94a328ab4',
-    'db450005-8e9a-4818-add7-6ed94a328ab4',
-    'db450002-8e9a-4818-add7-6ed94a328ab4'
-  ];
 }

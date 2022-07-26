@@ -10,9 +10,9 @@ enum AtmotubeExceptionType {
   DEFAULT,
 } // AtmotubeExceptionType
 
-/// [AtmotubeException] is a class defining an [Exception] that
+/// [AtmotubeException] is an abstract class defining an [Exception] that
 /// can be thrown by atmotuber.
-class AtmotubeException implements Exception {
+abstract class AtmotubeException implements Exception {
   /// The [AtmotubeException] method.
   String? message;
 

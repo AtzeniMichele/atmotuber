@@ -1,25 +1,27 @@
-// class AtmotubeData {
-//   static List<dynamic> Status = [];
-//   static List<dynamic> BME280 = [];
-//   static List<dynamic> PM = [];
-//   static dynamic VOC;
-// }
-
 import 'package:flutter/cupertino.dart';
+
+/// [AtmotubeData] is a class implementing the data model of the
+/// user account data.
 
 @immutable
 class AtmotubeData {
+  // status data (battery and other additional info in bits)
   final List<dynamic> Status;
+  // bme280 data (temperature, humidity, pressure)
   final List<dynamic> BME280;
+  // pm data (pm1, pm2.5, pm10)
   final List<dynamic> PM;
+  // voc data
   final List<dynamic> VOC;
 
+  /// Default [AtmotubeData] constructor.
   const AtmotubeData(
       {this.Status = const [],
       this.BME280 = const [],
       this.PM = const [],
       this.VOC = const []});
 
+  /// Generates a [AtmotubeData] new object.
   AtmotubeData copyWith({
     List<dynamic>? Status,
     List<dynamic>? BME280,
@@ -48,4 +50,5 @@ class AtmotubeData {
   // @override
   // int get hashCode =>
   //     Status.hashCode ^ BME280.hashCode ^ PM.hashCode ^ VOC.hashCode;
-}
+
+} // AtmotubeData
