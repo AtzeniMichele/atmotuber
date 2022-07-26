@@ -50,7 +50,8 @@ class Atmotuber {
     _handleBluetoothDeviceState(BluetoothDeviceState.disconnected);
 
     // scan for atmotube
-    dynamic scan = await flutterBlue.startScan(timeout: Duration(seconds: 4));
+    dynamic scan =
+        await flutterBlue.startScan(timeout: const Duration(seconds: 4));
 
     for (dynamic s in scan) {
       // looking for non null devices
@@ -132,11 +133,11 @@ class Atmotuber {
   /// [getData] A Stream method that handles device real-time data from different type of ble characterstics and write into an AtmotubeData object
   Stream<AtmotubeData> getData(
       List<BluetoothCharacteristic> characteristics) async* {
-    var data1;
-    var data2;
-    var data3;
-    var data4;
-    var data5;
+    List<dynamic> data1 = atmotubeData.Status;
+    List<dynamic> data2 = atmotubeData.Status;
+    List<dynamic> data3 = atmotubeData.BME280;
+    List<dynamic> data4 = atmotubeData.PM;
+    List<dynamic> data5 = atmotubeData.VOC;
 
     for (String type in dataType) {
       switch (type) {
@@ -185,7 +186,7 @@ class Atmotuber {
           break;
         default:
           {
-            print('something is wrong');
+            //print('something is wrong');
           }
       }
       // update values of a streammable atmotubeData object
@@ -208,7 +209,8 @@ class Atmotuber {
 
     // recursively update atmotubeData object and listen to its changes (N.B: it needs Atmotube in continous mode for more precise data collection).
     // TODO: better solution
-    Timer.periodic(Duration(seconds: 5), (timer) {
+
+    Timer.periodic(const Duration(seconds: 5), (timer) {
       if (!shouldStop) {
         Stream<AtmotubeData> data = getData(characteristics);
         data.listen((event) {
@@ -225,8 +227,8 @@ class Atmotuber {
     });
   } // wrapper
 
-  /// [hist_wrapper] A wrapper method that handles device history data collection
-  Future<void> hist_wrapper({required Function callback}) async {
+  /// [histwrapper] A wrapper method that handles device history data collection
+  Future<void> histwrapper({required Function callback}) async {
     // TODO: add timestamp for each point of values
 
     // check if an atmotube is already connected and ready for the data collection
@@ -241,12 +243,12 @@ class Atmotuber {
     // get history of atmotube not already synced
     getHist(characteristics);
     // stream object creation
-    Stream<AtmotubeData> hist_data = getAtmotubeHistObject();
+    Stream<AtmotubeData> histData = getAtmotubeHistObject();
     //listener
-    hist_data.listen((event) {
+    histData.listen((event) {
       callback(event);
     });
-  } // hist_wrapper
+  } // histwrapper
 
   /// [getAtmotubeHistObject] A method that creates a Stream from an AtmotubeData object
   Stream<AtmotubeData> getAtmotubeHistObject() async* {
@@ -271,56 +273,56 @@ class Atmotuber {
     tx.write(txCommand, withoutResponse: true);
 
     //init
-    int previous_packet_number = 0;
-    int packet_total = 0;
-    int packet_dim = 0;
+    int previousPacketNumber = 0;
+    int packetTotal = 0;
+    int packetDim = 0;
 
     //listener
     rx.value.listen((event) {
       final response = utf8.decoder.convert(event.getRange(0, 2).toList());
-      print('The device response is {$response}');
+      //print('The device response is {$response}');
 
       switch (response) {
         case 'HO':
           {
-            print('device received a history request');
+            //print('device received a history request');
           }
           break;
         case 'HT':
           {
-            Iterable<int> timebyte = event.getRange(3, 7).toList();
+            //Iterable<int> timebyte = event.getRange(3, 7).toList();
 
             //timestamp of the starting HD packet
-            DateTime packet_time = DataConversion().timestampDecoder(timebyte);
+            //DateTime packetTime = DataConversion().timestampDecoder(timebyte);
 
             // number of HD packets
-            packet_total = event.elementAt(7);
+            packetTotal = event.elementAt(7);
 
             // dimension of HD packets
-            int packet_dim = event.elementAt(8);
+            packetDim = event.elementAt(8);
 
-            print('time of the first history packet: {$packet_time}');
-            print('total number of history packets: {$packet_total}');
-            print('dimension of history packets: {$packet_dim}');
+            // print('time of the first history packet: {$packetTime}');
+            // print('total number of history packets: {$packetTotal}');
+            // print('dimension of history packets: {$packetDim}');
           }
           break;
         case 'HD':
           {
-            int packet_number = event.elementAt(3);
-            print('sent history packet number: {$packet_number}');
+            int packetNumber = event.elementAt(3);
+            //print('sent history packet number: {$packetNumber}');
             //print(event);
 
             // extract only the data
             List<int> data = event.getRange(4, event.length).toList();
 
             // number of packets sent computed as the difference between the previous and actual number packet
-            int diff = packet_number - previous_packet_number;
-            previous_packet_number = packet_number;
+            int diff = packetNumber - previousPacketNumber;
+            previousPacketNumber = packetNumber;
 
             for (int i in Iterable<int>.generate(diff).toList()) {
               // get a specific packet of length specified in HT response (so far, ever 16)
               List<int> subset =
-                  data.getRange(i * packet_dim, (i * packet_dim) + 15).toList();
+                  data.getRange(i * packetDim, (i * packetDim) + 15).toList();
 
               //print(subset.length);
 
@@ -353,26 +355,23 @@ class Atmotuber {
             }
 
             // send the HOK command for keeping up device sending history packets
-            if (packet_number == packet_total) {
-              previous_packet_number = 0;
-              Uint8List confirm_timestamp = DataConversion().timestampEncoder();
-              Uint8List confirm_command =
-                  DataConversion().commandEncoder('HOK');
-              final txAcknowledge = Uint8List.fromList([
-                confirm_command,
-                confirm_timestamp
-              ].expand((x) => x).toList());
-              print('new packet arriving');
+            if (packetNumber == packetTotal) {
+              previousPacketNumber = 0;
+              Uint8List confirmTimestamp = DataConversion().timestampEncoder();
+              Uint8List confirmCommand = DataConversion().commandEncoder('HOK');
+              final txAcknowledge = Uint8List.fromList(
+                  [confirmCommand, confirmTimestamp].expand((x) => x).toList());
+              //print('new packet arriving');
               tx.write(txAcknowledge, withoutResponse: true);
             } else {
               // update for loop in HD case
-              previous_packet_number = packet_number;
+              previousPacketNumber = packetNumber;
             }
           }
           break;
         default:
           {
-            print('no command found!');
+            //print('no command found!');
           }
       } // switch
     }); // listen

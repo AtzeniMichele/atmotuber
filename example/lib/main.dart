@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> dataHist() async {
-    await atm2.hist_wrapper(callback: (hist_streams) {
+    await atm2.histwrapper(callback: (hist_streams) {
       history.value = hist_streams;
       print(history.value.BME280);
       print(history.value.PM);
