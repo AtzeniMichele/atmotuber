@@ -4,7 +4,7 @@ import 'dart:async';
 
 void main() {
   return runApp(
-    MaterialApp(home: HomePage()),
+    MaterialApp(home: HomePage(), debugShowCheckedModeBanner: false),
   );
 }
 
@@ -28,11 +28,11 @@ class _HomePageState extends State<HomePage> {
     //await atm2.wrapper();
   }
 
-  void initialization() async {
-    await connectDevice();
-    //debugPrint('device is connected');
-    //Future.delayed(const Duration(seconds: 2), dataTaker);
-  }
+  // void initialization() async {
+  //   await connectDevice();
+  //   //debugPrint('device is connected');
+  //   //Future.delayed(const Duration(seconds: 2), dataTaker);
+  // }
 
   Future<void> dataTaker() async {
     await atm2.wrapper(callback: (streams) {
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        //crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Center(
             child: ElevatedButton(
@@ -126,6 +126,16 @@ class _HomePageState extends State<HomePage> {
               onPressed: dataHist,
             ),
           ),
+          const SizedBox(height: 30),
+          const SizedBox(
+            height: 30,
+            width: 360,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Real-time data',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400)),
+            ),
+          ),
           Center(
             child: ValueListenableBuilder(
               valueListenable: dataGot,
@@ -134,8 +144,6 @@ class _HomePageState extends State<HomePage> {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    //data.Status.isEmpty
-                    //? Text(_status) //const CircularProgressIndicator()
                     ListView.builder(
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,
