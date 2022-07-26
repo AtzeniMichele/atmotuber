@@ -1,40 +1,60 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# atmotuber
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+![atmotuber_logo](https://user-images.githubusercontent.com/99322237/181044838-d9f3ab77-6ac7-4ab0-8bf1-f24a3e9eb7f7.png)
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+A Flutter package to deal with Atmotube BLE communication and make data available within your app. 
 
-## Features
+## usage 
+To use the package:
+- add the dependency to your pubspec.yaml file
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+```yaml
+dependencies:
+  flutter:
+      sdk: flutter
+  atmotuber:
+```
+- (ios only) go to ios/Runner/Info.plist and add the following
 
-## Getting started
+ ```xml
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>Need BLE permission</string>
+<key>NSBluetoothPeripheralUsageDescription</key>
+<string>Need BLE permission</string>
+```
+- (adroid only) go to android/app/src/main/AndroidManifest.xml
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
-```dart
-const like = 'sample';
+ ```xml
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 ```
 
-## Additional information
+To connect to Atmotube Pro: 
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
-# atmotuber
+```dart
+// init
+Atmotuber atm = Atmotuber();
+// connect
+await atm.searchAtmotube();
+```
+To read real-time data: 
+
+```dart
+await atm.wrapper(callback: (streams) {
+    dataGot.value = streams;
+    }
+```
+To read history data: 
+
+```dart
+await atm.hist_wrapper(callback: (streams) {
+    history.value = streams;
+    }
+```
+To disconnect from Atmotube Pro: 
+
+```dart
+// disconnect
+await atm.dropConnection(); 
+```
