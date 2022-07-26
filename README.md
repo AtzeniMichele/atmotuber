@@ -15,6 +15,20 @@ dependencies:
       sdk: flutter
   atmotuber:
 ```
+- (ios only) go to ios/Runner/Info.plist and add the following
+
+ ```xml
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>Need BLE permission</string>
+<key>NSBluetoothPeripheralUsageDescription</key>
+<string>Need BLE permission</string>
+```
+- (adroid only) go to android/app/src/main/AndroidManifest.xml
+
+ ```xml
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+```
 
 To connect to Atmotube Pro: 
 
@@ -44,7 +58,3 @@ To disconnect from Atmotube Pro:
 // disconnect
 await atm.dropConnection(); 
 ```
-<<<<<<< HEAD
-=======
-
->>>>>>> 09565e07300cf7a32cc0e1e8671de6e3c5d7ded3
