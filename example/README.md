@@ -10,6 +10,7 @@ To run the example application:
 
 ## screenshots
 
-![IMG_7982](https://user-images.githubusercontent.com/99322237/181057705-71fc41ad-c418-4ea9-a515-5eb245e4bb69.PNG)
+![IMG_7982 Media](https://user-images.githubusercontent.com/99322237/181058097-95745f0d-24c6-4fc0-839c-08b1c4ea23fd.jpeg)
 
-![IMG_7983](https://user-images.githubusercontent.com/99322237/181057729-6fc1268a-a0e6-439c-99b1-fef151c58e03.PNG)
+
+![IMG_7983 Media](https://user-images.githubusercontent.com/99322237/181058338-ebc070d4-afb9-42ff-a6c3-04228da61138.jpeg)
