@@ -11,3 +11,6 @@ export 'package:atmotuber/src/uart_info.dart';
 
 // data models
 export 'package:atmotuber/src/model.dart';
+
+// errors
+export 'package:atmotuber/src/errors/AtmotubeException.dart';

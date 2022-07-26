@@ -7,15 +7,16 @@ import 'package:atmotuber/src/model.dart';
 import 'package:atmotuber/src/device_info.dart';
 import 'package:atmotuber/src/uart_info.dart';
 import 'package:atmotuber/src/utils.dart';
+import 'package:atmotuber/src/errors/AtmotubeException.dart';
 import 'package:collection/src/list_extensions.dart';
 
-// TODO: check status and interrupt getData
-// TODO: check if already connected, if yes, all actions can be executed
 // TODO: add timestamp for each point of values
 
 class Atmotuber {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   late BluetoothDevice? device;
+  bool shouldStop = false;
+
   final dataType = ['status', 'bme', 'pm', 'voc'];
   var atmotubeData = const AtmotubeData();
   var atmotubeDataHist = const AtmotubeData();
@@ -50,12 +51,18 @@ class Atmotuber {
         if (s.advertisementData.serviceUuids.last ==
             DeviceServiceConfig().deviceService) {
           device = s.device;
+          if (device == null) {
+            throw AtmotubeException(
+                message: 'ATMOTUBE is not near to you!',
+                type: AtmotubeExceptionType.NOT_NEAR);
+          }
         }
       }
     }
     _handleBluetoothDeviceState(BluetoothDeviceState.connecting);
     await device!.connect();
     _handleBluetoothDeviceState(BluetoothDeviceState.connected);
+    shouldStop = false;
     return device;
   }
 
@@ -65,6 +72,7 @@ class Atmotuber {
       if (element.name == DeviceServiceConfig().deviceName) {
         await element.disconnect();
         _handleBluetoothDeviceState(BluetoothDeviceState.disconnected);
+        shouldStop = true;
       }
     }
   }
@@ -177,6 +185,11 @@ class Atmotuber {
   }
 
   Future<void> wrapper({required Function callback}) async {
+    if (_deviceState == BluetoothDeviceState.disconnected) {
+      throw AtmotubeException(
+          message: 'Please first connect ATMOTUBE Pro',
+          type: AtmotubeExceptionType.NOT_CONNECTED);
+    }
     BluetoothService service = await getAtmotubeService();
     List<BluetoothCharacteristic> characteristics =
         await getCharacteristics(service);
@@ -185,19 +198,29 @@ class Atmotuber {
     BluetoothCharacteristic c = characteristics.firstWhere((element) =>
         element.uuid.toString() == DeviceServiceConfig().pmCharacteristic);
 
-    Timer mytimer = Timer.periodic(Duration(seconds: 5), (timer) {
-      Stream<AtmotubeData> data = getData(characteristics);
-      data.listen((event) {
-        print(event.Status);
-        print(event.BME280);
-        print(event.PM);
-        print(event.VOC);
-        callback(event);
-      });
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      if (!shouldStop) {
+        Stream<AtmotubeData> data = getData(characteristics);
+        data.listen((event) {
+          // print(event.Status);
+          // print(event.BME280);
+          // print(event.PM);
+          // print(event.VOC);
+          callback(event);
+        });
+      } else {
+        timer.cancel();
+      }
     });
+    //}
   }
 
   Future<void> hist_wrapper({required Function callback}) async {
+    if (_deviceState == BluetoothDeviceState.disconnected) {
+      throw AtmotubeException(
+          message: 'Please first connect ATMOTUBE Pro',
+          type: AtmotubeExceptionType.NOT_CONNECTED);
+    }
     BluetoothService service = await getUartAtmotubeService();
     List<BluetoothCharacteristic> characteristics =
         await getCharacteristics(service);
