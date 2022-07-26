@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:typed_data';
+import 'package:collection/collection.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:atmotuber/src/model.dart';
 import 'package:atmotuber/src/device_info.dart';
@@ -9,7 +10,6 @@ import 'package:atmotuber/src/uart_info.dart';
 import 'package:atmotuber/src/utils.dart';
 import 'package:atmotuber/src/errors/AtmotubeConnectionException.dart';
 import 'package:atmotuber/src/errors/AtmotubeNotNearException.dart';
-import 'package:collection/src/list_extensions.dart';
 
 /// [Atmotuber] is a class that wraps all the methods that can be used for interacting with an ATMOTUBE  Pro device
 
