@@ -1,6 +1,6 @@
 # atmotuber
 
-![atmotuber_logo](https://user-images.githubusercontent.com/99322237/181044838-d9f3ab77-6ac7-4ab0-8bf1-f24a3e9eb7f7.png)
+![black_atmotuber_logo](https://user-images.githubusercontent.com/99322237/181071737-4d2421c1-7c7d-41b2-ab4f-aea1959fb6d9.png)
 
 
 A Flutter package to deal with Atmotube Bluetooth API directly via BLE connection and make data ready to use within your app. 
