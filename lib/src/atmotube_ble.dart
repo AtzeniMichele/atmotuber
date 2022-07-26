@@ -59,11 +59,12 @@ class Atmotuber {
         if (s.advertisementData.serviceUuids.last ==
             DeviceServiceConfig().deviceService) {
           device = s.device;
-          if (device == null) {
-            throw AtmotubeNotNearException(
-                message: 'ATMOTUBE is not near to you!');
-          }
+        } else {
+          throw AtmotubeNotNearException(
+              message: 'ATMOTUBE is not near to you!');
         }
+      } else {
+        throw AtmotubeNotNearException(message: 'ATMOTUBE is not near to you!');
       }
     }
     _handleBluetoothDeviceState(BluetoothDeviceState.connecting);
