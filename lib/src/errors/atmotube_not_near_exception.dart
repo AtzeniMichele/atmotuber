@@ -1,4 +1,4 @@
-import 'package:atmotuber/src/errors/AtmotubeException.dart';
+import 'package:atmotuber/src/errors/atmotube_exception.dart';
 
 /// [AtmotubeNotNearException] is a class that implements the
 /// [AtmotubeExceptionType.NOT_NEAR] exception.

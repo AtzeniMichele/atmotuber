@@ -6,33 +6,33 @@ import 'package:flutter/cupertino.dart';
 @immutable
 class AtmotubeData {
   // status data (battery and other additional info in bits)
-  final List<dynamic> Status;
+  final List<dynamic> status;
   // bme280 data (temperature, humidity, pressure)
-  final List<dynamic> BME280;
+  final List<dynamic> bme280;
   // pm data (pm1, pm2.5, pm10)
-  final List<dynamic> PM;
+  final List<dynamic> pm;
   // voc data
-  final List<dynamic> VOC;
+  final List<dynamic> voc;
 
   /// Default [AtmotubeData] constructor.
   const AtmotubeData(
-      {this.Status = const [],
-      this.BME280 = const [],
-      this.PM = const [],
-      this.VOC = const []});
+      {this.status = const [],
+      this.bme280 = const [],
+      this.pm = const [],
+      this.voc = const []});
 
   /// Generates a [AtmotubeData] new object.
   AtmotubeData copyWith({
-    List<dynamic>? Status,
-    List<dynamic>? BME280,
-    List<dynamic>? PM,
-    List<dynamic>? VOC,
+    List<dynamic>? status,
+    List<dynamic>? bme280,
+    List<dynamic>? pm,
+    List<dynamic>? voc,
   }) {
     return AtmotubeData(
-      Status: Status ?? this.Status,
-      BME280: BME280 ?? this.BME280,
-      PM: PM ?? this.PM,
-      VOC: VOC ?? this.VOC,
+      status: status ?? this.status,
+      bme280: bme280 ?? this.bme280,
+      pm: pm ?? this.pm,
+      voc: voc ?? this.voc,
     );
   }
 

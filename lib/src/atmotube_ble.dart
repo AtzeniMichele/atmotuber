@@ -8,8 +8,8 @@ import 'package:atmotuber/src/model.dart';
 import 'package:atmotuber/src/device_info.dart';
 import 'package:atmotuber/src/uart_info.dart';
 import 'package:atmotuber/src/utils.dart';
-import 'package:atmotuber/src/errors/AtmotubeConnectionException.dart';
-import 'package:atmotuber/src/errors/AtmotubeNotNearException.dart';
+import 'package:atmotuber/src/errors/atmotube_connection_exception.dart';
+import 'package:atmotuber/src/errors/atmotube_not_near_exception.dart';
 
 /// [Atmotuber] is a class that wraps all the methods that can be used for interacting with an ATMOTUBE  Pro device
 
@@ -133,11 +133,11 @@ class Atmotuber {
   /// [getData] A Stream method that handles device real-time data from different type of ble characterstics and write into an AtmotubeData object
   Stream<AtmotubeData> getData(
       List<BluetoothCharacteristic> characteristics) async* {
-    List<dynamic> data1 = atmotubeData.Status;
-    List<dynamic> data2 = atmotubeData.Status;
-    List<dynamic> data3 = atmotubeData.BME280;
-    List<dynamic> data4 = atmotubeData.PM;
-    List<dynamic> data5 = atmotubeData.VOC;
+    List<dynamic> data1 = atmotubeData.status;
+    List<dynamic> data2 = atmotubeData.status;
+    List<dynamic> data3 = atmotubeData.bme280;
+    List<dynamic> data4 = atmotubeData.pm;
+    List<dynamic> data5 = atmotubeData.voc;
 
     for (String type in dataType) {
       switch (type) {
@@ -191,7 +191,7 @@ class Atmotuber {
       }
       // update values of a streammable atmotubeData object
       atmotubeData = atmotubeData.copyWith(
-          Status: [data1, data2], BME280: data3, PM: data4, VOC: data5);
+          status: [data1, data2], bme280: data3, pm: data4, voc: data5);
       yield atmotubeData;
     }
   } // getData
@@ -349,9 +349,9 @@ class Atmotuber {
 
               // update an AtmotubeData object with history values
               atmotubeDataHist = atmotubeDataHist.copyWith(
-                  BME280: [temp, humidity, pressure],
-                  PM: [pm1, pm2, pm10, 0],
-                  VOC: [voc]);
+                  bme280: [temp, humidity, pressure],
+                  pm: [pm1, pm2, pm10, 0],
+                  voc: [voc]);
             }
 
             // send the HOK command for keeping up device sending history packets

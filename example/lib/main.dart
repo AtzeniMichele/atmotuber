@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_const
+
 import 'package:atmotuber/atmotuber.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -18,8 +20,8 @@ class _HomePageState extends State<HomePage> {
   Atmotuber atm2 = Atmotuber();
   //List<dynamic> values = [];
   List<String> names = ['status', 'BME280', 'PM', 'VOC'];
-  ValueNotifier<AtmotubeData> dataGot = ValueNotifier(AtmotubeData());
-  ValueNotifier<AtmotubeData> history = ValueNotifier(AtmotubeData());
+  ValueNotifier<AtmotubeData> dataGot = ValueNotifier(const AtmotubeData());
+  ValueNotifier<AtmotubeData> history = ValueNotifier(const AtmotubeData());
   late String _status;
 
   Future<void> connectDevice() async {
@@ -41,11 +43,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> dataHist() async {
-    await atm2.histwrapper(callback: (hist_streams) {
-      history.value = hist_streams;
-      print(history.value.BME280);
-      print(history.value.PM);
-      print(history.value.VOC);
+    await atm2.histwrapper(callback: (histStreams) {
+      history.value = histStreams;
+      //print(history.value.bme280);
+      //print(history.value.pm);
+      //print(history.value.voc);
     });
   }
 
@@ -66,7 +68,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           Center(
             child: ElevatedButton(
-              child: Text(
+              child: const Text(
                 'Connect ATMOTUBE',
                 style: TextStyle(fontSize: 20.0),
               ),
@@ -74,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                 await connectDevice();
                 _status = atm2.getDeviceState();
                 if (_status == 'connected') {
-                  final snackBar = SnackBar(
+                  const snackBar = SnackBar(
                     content: const Text('Connected!'),
                     backgroundColor: Colors.green,
                   );
@@ -91,7 +93,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Center(
             child: ElevatedButton(
-              child: Text(
+              child: const Text(
                 'Disconnect ATMOTUBE',
                 style: TextStyle(fontSize: 20.0),
               ),
@@ -140,7 +142,7 @@ class _HomePageState extends State<HomePage> {
             child: ValueListenableBuilder(
               valueListenable: dataGot,
               builder: (context, AtmotubeData data, child) {
-                List list = [data.Status, data.BME280, data.PM, data.VOC];
+                List list = [data.status, data.bme280, data.pm, data.voc];
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
