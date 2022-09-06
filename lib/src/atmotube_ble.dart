@@ -68,7 +68,9 @@ class Atmotuber {
         if (s.advertisementData.serviceUuids.isNotEmpty) {
           // looking for atmotube Pro
           if (s.advertisementData.serviceUuids.last ==
-              DeviceServiceConfig().deviceService.toLowerCase()) {
+                  DeviceServiceConfig().deviceService.toLowerCase() ||
+              s.advertisementData.serviceUuids.last ==
+                  DeviceServiceConfig().deviceService) {
             device = s.device;
           }
         }
