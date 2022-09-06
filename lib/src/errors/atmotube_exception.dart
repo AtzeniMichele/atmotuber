@@ -1,13 +1,13 @@
 /// An enumerator defining the possible types of [AtmotubeException].
 enum AtmotubeExceptionType {
   /// It occurs when the Atmotube Pro is not near and not found
-  NOT_NEAR,
+  notNEAR,
 
   /// It occurs when the Atmotube Pro is not connected and some actions are triggered
-  NOT_CONNECTED,
+  notCONNECTED,
 
   /// Default error type.
-  DEFAULT,
+  isDEFAULT,
 } // AtmotubeExceptionType
 
 /// [AtmotubeException] is an abstract class defining an [Exception] that
@@ -21,8 +21,9 @@ abstract class AtmotubeException implements Exception {
 
   /// Default [AtmotubeException] constructor.
   AtmotubeException(
-      {this.message = '', this.type = AtmotubeExceptionType.DEFAULT});
+      {this.message = '', this.type = AtmotubeExceptionType.isDEFAULT});
 
   /// Returns the string representation of this object.
+  @override
   String toString();
 } // AtmotubeException

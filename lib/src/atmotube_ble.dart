@@ -16,7 +16,7 @@ import 'package:atmotuber/src/errors/atmotube_not_near_exception.dart';
 class Atmotuber {
   // init
   FlutterBlue flutterBlue = FlutterBlue.instance;
-  late BluetoothDevice? device;
+  BluetoothDevice? device;
   bool shouldStop = false;
   final dataType = ['status', 'bme', 'pm', 'voc'];
   var atmotubeData = const AtmotubeData();
@@ -46,30 +46,42 @@ class Atmotuber {
   /// [searchAtmotube] a method that handles device connection action
   Future<BluetoothDevice?> searchAtmotube() async {
     // before all, disconnect any atmotube connected
-    await dropConnection();
-    _handleBluetoothDeviceState(BluetoothDeviceState.disconnected);
+    // await dropConnection();
+    // _handleBluetoothDeviceState(BluetoothDeviceState.disconnected);
 
-    // scan for atmotube
-    dynamic scan =
-        await flutterBlue.startScan(timeout: const Duration(seconds: 4));
+    // check if an atmotube is already connected:
+    var connected = await flutterBlue.connectedDevices;
+    for (var element in connected) {
+      if (element.name == DeviceServiceConfig().deviceName) {
+        device = element;
+        _handleBluetoothDeviceState(BluetoothDeviceState.connected);
+      } //if
+    } //for
 
-    for (dynamic s in scan) {
-      // looking for non null devices
-      if (s.advertisementData.serviceUuids.isNotEmpty) {
-        // looking for atmotube Pro
-        if (s.advertisementData.serviceUuids.last ==
-            DeviceServiceConfig().deviceService) {
-          device = s.device;
+    if (_deviceState == BluetoothDeviceState.disconnected) {
+      // scan for atmotube
+      dynamic scan =
+          await flutterBlue.startScan(timeout: const Duration(seconds: 4));
+
+      for (dynamic s in scan) {
+        // looking for non null devices
+        if (s.advertisementData.serviceUuids.isNotEmpty) {
+          // looking for atmotube Pro
+          if (s.advertisementData.serviceUuids.last ==
+              DeviceServiceConfig().deviceService.toLowerCase()) {
+            device = s.device;
+          }
         }
       }
-    }
-    if (device == null) {
-      throw AtmotubeNotNearException(message: 'ATMOTUBE is not near to you!');
-    }
-    _handleBluetoothDeviceState(BluetoothDeviceState.connecting);
-    // atmotube connection
-    await device!.connect();
-    _handleBluetoothDeviceState(BluetoothDeviceState.connected);
+      if (device == null) {
+        throw AtmotubeNotNearException(message: 'ATMOTUBE is not near to you!');
+      }
+      _handleBluetoothDeviceState(BluetoothDeviceState.connecting);
+      // atmotube connection
+      await device!.connect();
+      _handleBluetoothDeviceState(BluetoothDeviceState.connected);
+    } //if
+
     // setup for later timer.periodic call
     shouldStop = false;
     return device;
@@ -158,7 +170,7 @@ class Atmotuber {
             BluetoothCharacteristic c = characteristics.firstWhere((element) =>
                 element.uuid.toString() ==
                 DeviceServiceConfig().bmeCharacteristic);
-            // bme data (temperature, humidity, pressure)
+            // bme data (humidity, temperature, pressure)
             data3 = await getValues(c, [0, 1, 2], [0, 1, 5]);
             // pressure data from mbar * 100 to mbar
             data3[2] = data3[2] / 100;
@@ -172,6 +184,10 @@ class Atmotuber {
             // pm data (pm1, pm2.5, pm10)
             data4 = await getValues(c, [0, 3, 6], [2, 5, 8]);
             data4 = data4.map((e) => e / 100).toList();
+            // filter for non interested measurements
+            if (data4.first > 1000) {
+              data4 = ['Nan', 'Nan', 'NaN', 'NaN'];
+            }
           }
           break;
         case 'voc':
@@ -179,6 +195,7 @@ class Atmotuber {
             BluetoothCharacteristic c = characteristics.firstWhere((element) =>
                 element.uuid.toString() ==
                 DeviceServiceConfig().vocCharacteristics);
+
             // voc data
             data5 = await getValues(c, [0], [1]);
             data5 = data5.map((e) => e / 1000).toList(); // from ppb to ppm
@@ -191,7 +208,11 @@ class Atmotuber {
       }
       // update values of a streammable atmotubeData object
       atmotubeData = atmotubeData.copyWith(
-          status: [data1, data2], bme280: data3, pm: data4, voc: data5);
+          datetime: DateTime.now(),
+          status: [data1, data2],
+          bme280: data3,
+          pm: data4,
+          voc: data5);
       yield atmotubeData;
     }
   } // getData
@@ -208,7 +229,6 @@ class Atmotuber {
         await getCharacteristics(service);
 
     // recursively update atmotubeData object and listen to its changes (N.B: it needs Atmotube in continous mode for more precise data collection).
-    // TODO: better solution
 
     Timer.periodic(const Duration(seconds: 5), (timer) {
       if (!shouldStop) {
@@ -229,8 +249,6 @@ class Atmotuber {
 
   /// [histwrapper] A wrapper method that handles device history data collection
   Future<void> histwrapper({required Function callback}) async {
-    // TODO: add timestamp for each point of values
-
     // check if an atmotube is already connected and ready for the data collection
     if (_deviceState == BluetoothDeviceState.disconnected) {
       throw AtmotubeConnectionException(
@@ -256,7 +274,7 @@ class Atmotuber {
   } // getAtmotubeHistObject
 
   /// [getHist] A method that handles device history data via UART communication (sending commands via tx channel and listening via rx channel)
-  void getHist(List<BluetoothCharacteristic> characteristics) {
+  void getHist(List<BluetoothCharacteristic> characteristics) async {
     BluetoothCharacteristic rx = characteristics.firstWhere((element) =>
         element.uuid.toString() == HistoryServiceConfig().rxCharacteristicId);
     BluetoothCharacteristic tx = characteristics.firstWhere((element) =>
@@ -268,18 +286,22 @@ class Atmotuber {
     final txCommand =
         Uint8List.fromList([command, timestamp].expand((x) => x).toList());
 
-    rx.setNotifyValue(true);
     // history request
-    tx.write(txCommand, withoutResponse: true);
+    await rx.setNotifyValue(true);
+    await tx.write(txCommand, withoutResponse: true);
 
     //init
     int previousPacketNumber = 0;
     int packetTotal = 0;
     int packetDim = 0;
-
+    int j = 0;
+    List<DateTime> datetimeList = [];
+    List<DateTime> datetimeRange = [];
     //listener
     rx.value.listen((event) {
-      final response = utf8.decoder.convert(event.getRange(0, 2).toList());
+      final response = event.isEmpty
+          ? 'None'
+          : utf8.decoder.convert(event.getRange(0, 2).toList());
       //print('The device response is {$response}');
 
       switch (response) {
@@ -290,16 +312,26 @@ class Atmotuber {
           break;
         case 'HT':
           {
-            //Iterable<int> timebyte = event.getRange(3, 7).toList();
-
             //timestamp of the starting HD packet
-            //DateTime packetTime = DataConversion().timestampDecoder(timebyte);
+            Iterable<int> timebyte = event.getRange(3, 7).toList();
+            DateTime packetTime = DataConversion().timestampDecoder(timebyte);
 
             // number of HD packets
             packetTotal = event.elementAt(7);
 
             // dimension of HD packets
             packetDim = event.elementAt(8);
+
+            // prova
+            final timestamp = packetTime.millisecondsSinceEpoch;
+            // supposing always 5 min mode
+            // note: history seems to not follow this structure. Every 1 minute a value? Check csv value: yes every one minute
+            var list =
+                List<int>.generate(packetTotal, (i) => timestamp + 60000 * i);
+            for (int i = 0; i < packetTotal; i++) {
+              datetimeList.add(DateTime.fromMillisecondsSinceEpoch(list[i]));
+            }
+            // print(datetimeList);
 
             // print('time of the first history packet: {$packetTime}');
             // print('total number of history packets: {$packetTotal}');
@@ -308,8 +340,12 @@ class Atmotuber {
           break;
         case 'HD':
           {
+            // if device responds with an HD packet before an HT one, this is not from the actual request
+            if (packetTotal == 0 && packetDim == 0) {
+              break;
+            }
             int packetNumber = event.elementAt(3);
-            //print('sent history packet number: {$packetNumber}');
+            print('sent history packet number: {$packetNumber}');
             //print(event);
 
             // extract only the data
@@ -319,7 +355,12 @@ class Atmotuber {
             int diff = packetNumber - previousPacketNumber;
             previousPacketNumber = packetNumber;
 
+            // extract the timestamps of a certain packet (e.g from 1 to 15, from 16 to 30 etc) => which corresponds to indeces (0-14, 15-29)
+            datetimeRange =
+                datetimeList.getRange(j * 15, packetNumber).toList();
+
             for (int i in Iterable<int>.generate(diff).toList()) {
+              print(datetimeRange[i]);
               // get a specific packet of length specified in HT response (so far, ever 16)
               List<int> subset =
                   data.getRange(i * packetDim, (i * packetDim) + 15).toList();
@@ -339,16 +380,17 @@ class Atmotuber {
               int pm10 =
                   DataConversion().getConversion(subset, 12, 13); // microg / m3
 
-              // print('temperature is: {$temp}');
-              // print('humidity is: {$humidity}');
-              // print('voc is: {$voc}');
-              // print('pressure is: {$pressure}');
-              // print('pm1 is: {$pm1}');
-              // print('pm2 is: {$pm2}');
-              // print('pm10 is: {$pm10}');
+              print('temperature is: {$temp}');
+              print('humidity is: {$humidity}');
+              print('voc is: {$voc}');
+              print('pressure is: {$pressure}');
+              print('pm1 is: {$pm1}');
+              print('pm2 is: {$pm2}');
+              print('pm10 is: {$pm10}');
 
               // update an AtmotubeData object with history values
               atmotubeDataHist = atmotubeDataHist.copyWith(
+                  datetime: datetimeRange[i],
                   bme280: [temp, humidity, pressure],
                   pm: [pm1, pm2, pm10, 0],
                   voc: [voc]);
@@ -357,22 +399,29 @@ class Atmotuber {
             // send the HOK command for keeping up device sending history packets
             if (packetNumber == packetTotal) {
               previousPacketNumber = 0;
+              datetimeList = [];
+              j = 0;
               Uint8List confirmTimestamp = DataConversion().timestampEncoder();
               Uint8List confirmCommand = DataConversion().commandEncoder('HOK');
               final txAcknowledge = Uint8List.fromList(
                   [confirmCommand, confirmTimestamp].expand((x) => x).toList());
-              //print('new packet arriving');
+              // print(txAcknowledge);
+              // print('new packet arriving');
+              // Future.delayed(const Duration(seconds: 1), () {
               tx.write(txAcknowledge, withoutResponse: true);
+              // });
             } else {
               // update for loop in HD case
               previousPacketNumber = packetNumber;
+              j = j + 1;
             }
           }
           break;
         default:
           {
-            //print('no command found!');
+            //print('no command found!')
           }
+          break;
       } // switch
     }); // listen
   } // getHist

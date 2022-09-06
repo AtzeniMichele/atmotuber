@@ -3,20 +3,22 @@
 import 'package:atmotuber/atmotuber.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+// import 'package:flutter_blue/flutter_blue.dart';
+// import 'package:async/async.dart';
 
 void main() {
   return runApp(
-    MaterialApp(home: HomePage(), debugShowCheckedModeBanner: false),
+    const MaterialApp(home: HomePage(), debugShowCheckedModeBanner: false),
   );
 }
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   Atmotuber atm2 = Atmotuber();
   //List<dynamic> values = [];
   List<String> names = ['status', 'BME280', 'PM', 'VOC'];
@@ -58,6 +60,10 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  void showsnack(SnackBar snackBar) {
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,13 +86,13 @@ class _HomePageState extends State<HomePage> {
                     content: const Text('Connected!'),
                     backgroundColor: Colors.green,
                   );
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  showsnack(snackBar);
                 } else if (_status == 'disconnected') {
-                  final snackBar = SnackBar(
+                  const snackBar = SnackBar(
                     content: const Text('Not Connected!'),
                     backgroundColor: Colors.red,
                   );
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  showsnack(snackBar);
                 }
               },
             ),
@@ -101,31 +107,69 @@ class _HomePageState extends State<HomePage> {
                 await atm2.dropConnection();
                 _status = atm2.getDeviceState();
                 if (_status == 'disconnected') {
-                  final snackBar = SnackBar(
+                  const snackBar = SnackBar(
                     content: const Text('Not Connected anymore!'),
                     backgroundColor: Colors.red,
                   );
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  showsnack(snackBar);
                 }
               },
             ),
           ),
+          // Center(
+          //   child: ElevatedButton(
+          //     child: const Text(
+          //       ' ATMOTUBE',
+          //       style: TextStyle(fontSize: 20.0),
+          //     ),
+          //     onPressed: () async {
+          //       final service = await atm2.getAtmotubeService();
+          //       final chars = await atm2.getCharacteristics(service);
+          //       BluetoothCharacteristic c = chars.firstWhere((element) =>
+          //           element.uuid.toString() ==
+          //           DeviceServiceConfig().vocCharacteristics);
+          //       c.setNotifyValue(true);
+          //       var s = c.value.map((event) {
+          //         return (c.uuid.toString() + '-' + event.toString());
+          //       });
+          //       AtmotubeData atm = AtmotubeData();
+          //       BluetoothCharacteristic c1 = chars.firstWhere((element) =>
+          //           element.uuid.toString() ==
+          //           DeviceServiceConfig().bmeCharacteristic);
+          //       c1.setNotifyValue(true);
+          //       var s1 = c1.value.map((event) {
+          //         return (c1.uuid.toString() + '-' + event.toString());
+          //       });
+          //       StreamController<AtmotubeData> satm = StreamController()
+          //         ..add(AtmotubeData());
+          //       StreamGroup.merge([s, s1]).listen((event) {
+          //         List<String> e = event.split('-');
+          //         if (e[0] == DeviceServiceConfig().vocCharacteristics) {
+          //           satm.add(atm.copyWith(voc: [1]));
+          //         }
+          //       });
+          //       satm.stream.listen((event) {
+          //         print(event);
+          //       });
+          //     },
+          //   ),
+          // ),
           Center(
             child: ElevatedButton(
-              child: Text(
-                'get data',
-                style: TextStyle(fontSize: 20.0),
-              ),
               onPressed: dataTaker,
+              child: const Text(
+                'get data',
+                style: const TextStyle(fontSize: 20.0),
+              ),
             ),
           ),
           Center(
             child: ElevatedButton(
-              child: Text(
+              onPressed: dataHist,
+              child: const Text(
                 'get history',
                 style: TextStyle(fontSize: 20.0),
               ),
-              onPressed: dataHist,
             ),
           ),
           const SizedBox(height: 30),
@@ -154,10 +198,10 @@ class _HomePageState extends State<HomePage> {
                         return Column(
                           children: <Widget>[
                             ListTile(
-                              title: Text('${names[index]}'),
-                              subtitle: Text('${list[index]}'),
+                              title: Text(names[index]),
+                              subtitle: Text(list[index].toString()),
                             ),
-                            Divider(height: 2.0)
+                            const Divider(height: 2.0)
                           ],
                         );
                       },

@@ -13,6 +13,6 @@ export 'package:atmotuber/src/uart_info.dart';
 export 'package:atmotuber/src/model.dart';
 
 // errors
-export 'package:atmotuber/src/errors/AtmotubeException.dart';
-export 'package:atmotuber/src/errors/AtmotubeNotNearException.dart';
-export 'package:atmotuber/src/errors/AtmotubeConnectionException.dart';
+export 'package:atmotuber/src/errors/atmotube_exception.dart';
+export 'package:atmotuber/src/errors/atmotube_not_near_exception.dart';
+export 'package:atmotuber/src/errors/atmotube_connection_exception.dart';

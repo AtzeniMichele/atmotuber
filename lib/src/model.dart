@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 
 @immutable
 class AtmotubeData {
+  // datetime of measurement
+  final DateTime? datetime;
   // status data (battery and other additional info in bits)
   final List<dynamic> status;
   // bme280 data (temperature, humidity, pressure)
@@ -16,19 +18,22 @@ class AtmotubeData {
 
   /// Default [AtmotubeData] constructor.
   const AtmotubeData(
-      {this.status = const [],
+      {this.datetime,
+      this.status = const [],
       this.bme280 = const [],
       this.pm = const [],
       this.voc = const []});
 
   /// Generates a [AtmotubeData] new object.
   AtmotubeData copyWith({
+    DateTime? datetime,
     List<dynamic>? status,
     List<dynamic>? bme280,
     List<dynamic>? pm,
     List<dynamic>? voc,
   }) {
     return AtmotubeData(
+      datetime: datetime ?? this.datetime,
       status: status ?? this.status,
       bme280: bme280 ?? this.bme280,
       pm: pm ?? this.pm,

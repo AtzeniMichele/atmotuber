@@ -1,3 +1,9 @@
+## [0.0.3] 2022/09/06
+
+* LowerCamelCase formatting. 
+* Timestamp insertion for datapoints.
+* Better connection handler.
+* Timestamp computing in history datapoints. 
 ## [0.0.2] 2022/07/26
 
 * Upgraded dependencies. 

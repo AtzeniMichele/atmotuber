@@ -23,7 +23,7 @@ dependencies:
 <key>NSBluetoothPeripheralUsageDescription</key>
 <string>Need BLE permission</string>
 ```
-- (adroid only) go to android/app/src/main/AndroidManifest.xml
+- (android only) go to android/app/src/main/AndroidManifest.xml
 
  ```xml
 <uses-permission android:name="android.permission.BLUETOOTH" />
