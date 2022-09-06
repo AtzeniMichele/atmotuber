@@ -1,4 +1,4 @@
-## [0.0.3] 2022/09/06
+## [0.0.4] 2022/09/06
 
 * LowerCamelCase formatting. 
 * Timestamp insertion for datapoints.
