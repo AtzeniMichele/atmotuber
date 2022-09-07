@@ -13,8 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_blue: ^0.8.0
   collection: ^1.16.0
-  async: 
-  rxdart: 
+  async: ^2.9.0
 
 dev_dependencies:
   flutter_test:
