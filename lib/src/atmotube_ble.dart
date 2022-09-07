@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:typed_data';
-import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:atmotuber/src/model.dart';
@@ -273,7 +272,7 @@ class Atmotuber {
 
     //  update atmotubeData object and listen to its changes.
     StreamGroup.merge([status, bme, pm, voc]).listen((event) {
-      print(event);
+      //print(event);
       if (event.entries.first.value.isNotEmpty) {
         getData(event);
       }
@@ -338,7 +337,7 @@ class Atmotuber {
       final response = event.isEmpty
           ? 'None'
           : utf8.decoder.convert(event.getRange(0, 2).toList());
-      print('The device response is {$response}');
+      //print('The device response is {$response}');
 
       switch (response) {
         case 'HO':
@@ -446,7 +445,7 @@ class Atmotuber {
                 confirmTimestamp
               ].expand((x) => x).toList());
               // print(txAcknowledge);
-              print('new packet arriving');
+              //print('new packet arriving');
               // Future.delayed(const Duration(seconds: 1), () {
               tx.write(txAcknowledge, withoutResponse: true);
               // });
