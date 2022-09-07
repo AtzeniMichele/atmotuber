@@ -1,3 +1,7 @@
+## [0.1.0] 2022/09/07
+* New real-time data getter method using listeners. 
+* Bug fix.  
+
 ## [0.0.4] 2022/09/06
 
 * LowerCamelCase formatting. 

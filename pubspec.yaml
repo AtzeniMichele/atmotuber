@@ -1,6 +1,6 @@
 name: atmotuber
 description: A new Flutter package for BLE comunication with ATMOTUBE Pro.
-version: 0.0.4
+version: 0.1.0
 homepage: https://github.com/AtzeniMichele/atmotuber
 
 environment:
@@ -13,11 +13,13 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_blue: ^0.8.0
   collection: ^1.16.0
+  async: 
+  rxdart: 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^2.0.0 
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

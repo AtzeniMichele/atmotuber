@@ -21,7 +21,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   Atmotuber atm2 = Atmotuber();
   //List<dynamic> values = [];
-  List<String> names = ['status', 'BME280', 'PM', 'VOC'];
+  List<String> names = ['date time', 'status', 'BME280', 'PM', 'VOC'];
   ValueNotifier<AtmotubeData> dataGot = ValueNotifier(const AtmotubeData());
   ValueNotifier<AtmotubeData> history = ValueNotifier(const AtmotubeData());
   late String _status;
@@ -156,7 +156,9 @@ class HomePageState extends State<HomePage> {
           // ),
           Center(
             child: ElevatedButton(
-              onPressed: dataTaker,
+              onPressed: (() async {
+                await dataTaker();
+              }),
               child: const Text(
                 'get data',
                 style: const TextStyle(fontSize: 20.0),
@@ -165,7 +167,9 @@ class HomePageState extends State<HomePage> {
           ),
           Center(
             child: ElevatedButton(
-              onPressed: dataHist,
+              onPressed: (() async {
+                await dataHist();
+              }),
               child: const Text(
                 'get history',
                 style: TextStyle(fontSize: 20.0),
@@ -186,7 +190,13 @@ class HomePageState extends State<HomePage> {
             child: ValueListenableBuilder(
               valueListenable: dataGot,
               builder: (context, AtmotubeData data, child) {
-                List list = [data.status, data.bme280, data.pm, data.voc];
+                List list = [
+                  data.datetime,
+                  data.status,
+                  data.bme280,
+                  data.pm,
+                  data.voc
+                ];
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

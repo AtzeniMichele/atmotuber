@@ -1,7 +1,9 @@
+import 'package:async/async.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:typed_data';
+import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:atmotuber/src/model.dart';
@@ -18,9 +20,9 @@ class Atmotuber {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   BluetoothDevice? device;
   bool shouldStop = false;
-  final dataType = ['status', 'bme', 'pm', 'voc'];
   var atmotubeData = const AtmotubeData();
   var atmotubeDataHist = const AtmotubeData();
+  StreamController<AtmotubeData> satm = StreamController();
   static BluetoothDeviceState _deviceState = BluetoothDeviceState.disconnected;
 
   /// [_handleBluetoothDeviceState] a private method that set device connection state
@@ -91,6 +93,11 @@ class Atmotuber {
 
   /// [dropConnection] a method that handles device disconnection action
   Future<void> dropConnection() async {
+    // close the streams when atmotube no longer connected
+    satm.close();
+    satm = StreamController();
+
+    //look for atmotube among connected devices
     var connected = await flutterBlue.connectedDevices;
     for (var element in connected) {
       if (element.name == DeviceServiceConfig().deviceName) {
@@ -127,15 +134,12 @@ class Atmotuber {
   } // getCharacterstics
 
   /// [getValues] a wrapper method that handles device real-time data conversions for specified ranges of the byte list
-  Future<List<dynamic>> getValues(BluetoothCharacteristic c,
-      List<int> startRanges, List<int> stopRanges) async {
+  List<dynamic> getValues(
+      List<int> list, List<int> startRanges, List<int> stopRanges) {
     List values = [];
     if (startRanges.length == stopRanges.length) {
       final indexes =
           startRanges.mapIndexed((index, element) => index).toList();
-
-      List<int> list = await c.read();
-
       for (int i in indexes) {
         values.add(DataConversion()
             .getConversion(list, startRanges[i], stopRanges[i]));
@@ -145,78 +149,83 @@ class Atmotuber {
   } // getValues
 
   /// [getData] A Stream method that handles device real-time data from different type of ble characterstics and write into an AtmotubeData object
-  Stream<AtmotubeData> getData(
-      List<BluetoothCharacteristic> characteristics) async* {
-    List<dynamic> data1 = atmotubeData.status;
-    List<dynamic> data2 = atmotubeData.status;
+  void getData(Map<String, List<int>> mapData) {
+    List<dynamic> data = atmotubeData.status;
     List<dynamic> data3 = atmotubeData.bme280;
     List<dynamic> data4 = atmotubeData.pm;
     List<dynamic> data5 = atmotubeData.voc;
-
-    for (String type in dataType) {
-      switch (type) {
-        case 'status':
-          {
-            BluetoothCharacteristic c = characteristics.firstWhere((element) =>
-                element.uuid.toString() ==
-                DeviceServiceConfig().statusCharacteristic);
-            // status data (battery)
-            data1 = await getValues(c, [0], [0]);
-            var val = await c.read();
-            // status data (status bits)
-            data2 = DataConversion().getBits(val[1]);
+    switch (mapData.entries.first.key) {
+      case 'status':
+        {
+          // status data (battery)
+          List<dynamic> data1 =
+              getValues(mapData.entries.first.value, [1], [1]);
+          // status data (status bits)
+          List<dynamic> data2 =
+              DataConversion().getBits(mapData.entries.first.value[0]);
+          atmotubeData = atmotubeData.copyWith(
+              datetime: DateTime.now(),
+              status: [data1, data2],
+              bme280: data3,
+              pm: data4,
+              voc: data5);
+          satm.add(atmotubeData);
+        }
+        break;
+      case 'bme':
+        {
+          // bme data (humidity, temperature, pressure)
+          data3 = getValues(mapData.entries.first.value, [0, 1, 2], [0, 1, 5]);
+          // pressure data from mbar * 100 to mbar
+          data3[2] = data3[2] / 100;
+          atmotubeData = atmotubeData.copyWith(
+              datetime: DateTime.now(),
+              status: data,
+              bme280: data3,
+              pm: data4,
+              voc: data5);
+          satm.add(atmotubeData);
+        }
+        break;
+      case 'pm':
+        {
+          // pm data (pm1, pm2.5, pm10)
+          data4 = getValues(mapData.entries.first.value, [0, 3, 6], [2, 5, 8]);
+          data4 = data4.map((e) => e / 100).toList();
+          // filter for non interested measurements
+          if (data4.first > 1000) {
+            data4 = ['Nan', 'Nan', 'NaN', 'NaN'];
           }
-          break;
-        case 'bme':
-          {
-            BluetoothCharacteristic c = characteristics.firstWhere((element) =>
-                element.uuid.toString() ==
-                DeviceServiceConfig().bmeCharacteristic);
-            // bme data (humidity, temperature, pressure)
-            data3 = await getValues(c, [0, 1, 2], [0, 1, 5]);
-            // pressure data from mbar * 100 to mbar
-            data3[2] = data3[2] / 100;
-          }
-          break;
-        case 'pm':
-          {
-            BluetoothCharacteristic c = characteristics.firstWhere((element) =>
-                element.uuid.toString() ==
-                DeviceServiceConfig().pmCharacteristic);
-            // pm data (pm1, pm2.5, pm10)
-            data4 = await getValues(c, [0, 3, 6], [2, 5, 8]);
-            data4 = data4.map((e) => e / 100).toList();
-            // filter for non interested measurements
-            if (data4.first > 1000) {
-              data4 = ['Nan', 'Nan', 'NaN', 'NaN'];
-            }
-          }
-          break;
-        case 'voc':
-          {
-            BluetoothCharacteristic c = characteristics.firstWhere((element) =>
-                element.uuid.toString() ==
-                DeviceServiceConfig().vocCharacteristics);
-
-            // voc data
-            data5 = await getValues(c, [0], [1]);
-            data5 = data5.map((e) => e / 1000).toList(); // from ppb to ppm
-          }
-          break;
-        default:
-          {
-            //print('something is wrong');
-          }
-      }
-      // update values of a streammable atmotubeData object
-      atmotubeData = atmotubeData.copyWith(
-          datetime: DateTime.now(),
-          status: [data1, data2],
-          bme280: data3,
-          pm: data4,
-          voc: data5);
-      yield atmotubeData;
+          atmotubeData = atmotubeData.copyWith(
+              datetime: DateTime.now(),
+              status: data,
+              bme280: data3,
+              pm: data4,
+              voc: data5);
+          satm.add(atmotubeData);
+        }
+        break;
+      case 'voc':
+        {
+          // voc data
+          data5 = getValues(mapData.entries.first.value, [0], [1]);
+          data5 = data5.map((e) => e / 1000).toList(); // from ppb to ppm
+          atmotubeData = atmotubeData.copyWith(
+              datetime: DateTime.now(),
+              status: data,
+              bme280: data3,
+              pm: data4,
+              voc: data5);
+          satm.add(atmotubeData);
+        }
+        break;
+      default:
+        {
+          //print('something is wrong');
+        }
+        break;
     }
+    // update values of a streammable atmotubeData object
   } // getData
 
   /// [wrapper] A wrapper method that handles device real-time data collection
@@ -230,22 +239,47 @@ class Atmotuber {
     List<BluetoothCharacteristic> characteristics =
         await getCharacteristics(service);
 
-    // recursively update atmotubeData object and listen to its changes (N.B: it needs Atmotube in continous mode for more precise data collection).
+    // status stream subscription
+    BluetoothCharacteristic statusCharacteristics = characteristics.firstWhere(
+        (element) =>
+            element.uuid.toString() ==
+            DeviceServiceConfig().statusCharacteristic);
+    await statusCharacteristics.setNotifyValue(true);
+    Stream<Map<String, List<int>>> status =
+        statusCharacteristics.value.map((event) => {"status": event});
+    // bme stream subscription
+    BluetoothCharacteristic bmeCharacteristics = characteristics.firstWhere(
+        (element) =>
+            element.uuid.toString() == DeviceServiceConfig().bmeCharacteristic);
+    await bmeCharacteristics.setNotifyValue(true);
+    Stream<Map<String, List<int>>> bme =
+        bmeCharacteristics.value.map((event) => {"bme": event});
+    // pm stream subscription
+    BluetoothCharacteristic pmCharacteristics = characteristics.firstWhere(
+        (element) =>
+            element.uuid.toString() == DeviceServiceConfig().pmCharacteristic);
+    await pmCharacteristics.setNotifyValue(true);
+    Stream<Map<String, List<int>>> pm =
+        pmCharacteristics.value.map((event) => {"pm": event});
 
-    Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (!shouldStop) {
-        Stream<AtmotubeData> data = getData(characteristics);
-        data.listen((event) {
-          // print(event.Status);
-          // print(event.BME280);
-          // print(event.PM);
-          // print(event.VOC);
-          callback(event);
-        });
-      } else {
-        // when atmotube is disconnected, no more data collection. Close the periodic function call
-        timer.cancel();
+    // voc stream subscription
+    BluetoothCharacteristic vocCharacteristics = characteristics.firstWhere(
+        (element) =>
+            element.uuid.toString() ==
+            DeviceServiceConfig().vocCharacteristics);
+    await vocCharacteristics.setNotifyValue(true);
+    Stream<Map<String, List<int>>> voc =
+        vocCharacteristics.value.map((event) => {"voc": event});
+
+    //  update atmotubeData object and listen to its changes.
+    StreamGroup.merge([status, bme, pm, voc]).listen((event) {
+      print(event);
+      if (event.entries.first.value.isNotEmpty) {
+        getData(event);
       }
+    });
+    satm.stream.listen((event) {
+      callback(event);
     });
   } // wrapper
 
@@ -304,7 +338,7 @@ class Atmotuber {
       final response = event.isEmpty
           ? 'None'
           : utf8.decoder.convert(event.getRange(0, 2).toList());
-      //print('The device response is {$response}');
+      print('The device response is {$response}');
 
       switch (response) {
         case 'HO':
@@ -405,10 +439,14 @@ class Atmotuber {
               j = 0;
               Uint8List confirmTimestamp = DataConversion().timestampEncoder();
               Uint8List confirmCommand = DataConversion().commandEncoder('HOK');
-              final txAcknowledge = Uint8List.fromList(
-                  [confirmCommand, confirmTimestamp].expand((x) => x).toList());
+              //Uint8List zero = DataConversion().int32BigEndianBytes(0);
+              final txAcknowledge = Uint8List.fromList([
+                confirmCommand,
+                /*zero,*/
+                confirmTimestamp
+              ].expand((x) => x).toList());
               // print(txAcknowledge);
-              // print('new packet arriving');
+              print('new packet arriving');
               // Future.delayed(const Duration(seconds: 1), () {
               tx.write(txAcknowledge, withoutResponse: true);
               // });
@@ -418,6 +456,9 @@ class Atmotuber {
               j = j + 1;
             }
           }
+          break;
+        case 'None':
+          {}
           break;
         default:
           {
