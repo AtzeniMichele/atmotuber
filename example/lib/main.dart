@@ -116,44 +116,6 @@ class HomePageState extends State<HomePage> {
               },
             ),
           ),
-          // Center(
-          //   child: ElevatedButton(
-          //     child: const Text(
-          //       ' ATMOTUBE',
-          //       style: TextStyle(fontSize: 20.0),
-          //     ),
-          //     onPressed: () async {
-          //       final service = await atm2.getAtmotubeService();
-          //       final chars = await atm2.getCharacteristics(service);
-          //       BluetoothCharacteristic c = chars.firstWhere((element) =>
-          //           element.uuid.toString() ==
-          //           DeviceServiceConfig().vocCharacteristics);
-          //       c.setNotifyValue(true);
-          //       var s = c.value.map((event) {
-          //         return (c.uuid.toString() + '-' + event.toString());
-          //       });
-          //       AtmotubeData atm = AtmotubeData();
-          //       BluetoothCharacteristic c1 = chars.firstWhere((element) =>
-          //           element.uuid.toString() ==
-          //           DeviceServiceConfig().bmeCharacteristic);
-          //       c1.setNotifyValue(true);
-          //       var s1 = c1.value.map((event) {
-          //         return (c1.uuid.toString() + '-' + event.toString());
-          //       });
-          //       StreamController<AtmotubeData> satm = StreamController()
-          //         ..add(AtmotubeData());
-          //       StreamGroup.merge([s, s1]).listen((event) {
-          //         List<String> e = event.split('-');
-          //         if (e[0] == DeviceServiceConfig().vocCharacteristics) {
-          //           satm.add(atm.copyWith(voc: [1]));
-          //         }
-          //       });
-          //       satm.stream.listen((event) {
-          //         print(event);
-          //       });
-          //     },
-          //   ),
-          // ),
           Center(
             child: ElevatedButton(
               onPressed: (() async {
