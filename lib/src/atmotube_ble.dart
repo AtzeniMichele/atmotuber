@@ -22,6 +22,7 @@ class Atmotuber {
   var atmotubeData = const AtmotubeData();
   var atmotubeDataHist = const AtmotubeData();
   StreamController<AtmotubeData> satm = StreamController();
+  StreamController<AtmotubeData> hatm = StreamController();
   static BluetoothDeviceState _deviceState = BluetoothDeviceState.disconnected;
 
   /// [_handleBluetoothDeviceState] a private method that set device connection state
@@ -95,6 +96,8 @@ class Atmotuber {
     // close the streams when atmotube no longer connected
     satm.close();
     satm = StreamController();
+    hatm.close();
+    hatm = StreamController();
 
     //look for atmotube among connected devices
     var connected = await flutterBlue.connectedDevices;
@@ -296,17 +299,16 @@ class Atmotuber {
     // get history of atmotube not already synced
     getHist(characteristics);
     // stream object creation
-    Stream<AtmotubeData> histData = getAtmotubeHistObject();
     //listener
-    histData.listen((event) {
+    hatm.stream.listen((event) {
       callback(event);
     });
   } // histwrapper
 
-  /// [getAtmotubeHistObject] A method that creates a Stream from an AtmotubeData object
-  Stream<AtmotubeData> getAtmotubeHistObject() async* {
-    yield atmotubeDataHist;
-  } // getAtmotubeHistObject
+  // /// [getAtmotubeHistObject] A method that creates a Stream from an AtmotubeData object
+  // Stream<AtmotubeData> getAtmotubeHistObject() async* {
+  //   yield atmotubeDataHist;
+  // } // getAtmotubeHistObject
 
   /// [getHist] A method that handles device history data via UART communication (sending commands via tx channel and listening via rx channel)
   void getHist(List<BluetoothCharacteristic> characteristics) async {
@@ -429,6 +431,7 @@ class Atmotuber {
                   bme280: [temp, humidity, pressure],
                   pm: [pm1, pm2, pm10, 0],
                   voc: [voc]);
+              hatm.add(atmotubeDataHist);
             }
 
             // send the HOK command for keeping up device sending history packets
