@@ -1,3 +1,6 @@
+## [0.1.1] 2022/09/10
+* Bug fix. 
+
 ## [0.1.0] 2022/09/07
 * New real-time data getter method using listeners. 
 * Bug fix.  
