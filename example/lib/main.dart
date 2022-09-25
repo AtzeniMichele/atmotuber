@@ -138,6 +138,17 @@ class HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          Center(
+            child: ElevatedButton(
+              onPressed: (() async {
+                await atm2.cancelStreamHistory();
+              }),
+              child: const Text(
+                'cancel stream',
+                style: const TextStyle(fontSize: 20.0),
+              ),
+            ),
+          ),
           const SizedBox(height: 30),
           const SizedBox(
             height: 30,

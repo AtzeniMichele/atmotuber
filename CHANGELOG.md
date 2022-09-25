@@ -1,3 +1,6 @@
+## [0.1.2] 2022/09/25
+* Cancel subscription method for real-time and history streams added. 
+
 ## [0.1.1] 2022/09/10
 * Bug fix. 
 

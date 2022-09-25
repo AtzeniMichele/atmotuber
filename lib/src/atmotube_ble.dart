@@ -110,6 +110,18 @@ class Atmotuber {
     }
   } // dropConnection
 
+  /// [cancelStreamRealTime] is a method to stop listening the Atomutber Stream objects
+  Future<void> cancelStreamRealTime() async {
+    satm.close();
+    satm = StreamController();
+  } //cancelStreamRealTime
+
+  /// [cancelStreamHistory] is a method to stop listening the Atomutber Stream objects
+  Future<void> cancelStreamHistory() async {
+    hatm.close();
+    hatm = StreamController();
+  } //cancelStreamHistory
+
   /// [getAtmotubeService] a method that handles device ble services
   Future<BluetoothService> getAtmotubeService() async {
     var services = await device!.discoverServices();
@@ -277,10 +289,12 @@ class Atmotuber {
     StreamGroup.merge([status, bme, pm, voc]).listen((event) {
       //print(event);
       if (event.entries.first.value.isNotEmpty) {
+        //print("${event.entries.first.value}");
         getData(event);
       }
     });
     satm.stream.listen((event) {
+      //print(event.voc);
       callback(event);
     });
   } // wrapper
