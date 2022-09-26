@@ -1,3 +1,6 @@
+## [0.1.3] 2022/09/26
+* Handling duplication data after calling disconnect and connecting again. 
+
 ## [0.1.2] 2022/09/25
 * Cancel subscription method for real-time and history streams added. 
 

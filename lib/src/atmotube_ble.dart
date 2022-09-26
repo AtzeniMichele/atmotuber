@@ -24,6 +24,8 @@ class Atmotuber {
   StreamController<AtmotubeData> satm = StreamController();
   StreamController<AtmotubeData> hatm = StreamController();
   static BluetoothDeviceState _deviceState = BluetoothDeviceState.disconnected;
+  StreamSubscription<Map<String, List<int>>>? subscription;
+  StreamSubscription<List<int>>? subscription2;
 
   /// [_handleBluetoothDeviceState] a private method that set device connection state
   void _handleBluetoothDeviceState(BluetoothDeviceState deviceState) {
@@ -84,6 +86,7 @@ class Atmotuber {
       // atmotube connection
       await device!.connect();
       _handleBluetoothDeviceState(BluetoothDeviceState.connected);
+      await handleStreams();
     } //if
 
     // setup for later timer.periodic call
@@ -91,9 +94,32 @@ class Atmotuber {
     return device;
   } // searchAtmotube
 
+  Future<void> handleStreams() async {
+    // BluetoothService service = await getAtmotubeService();
+    // List<BluetoothCharacteristic> characteristics =
+    //     await getCharacteristics(service);
+    // BluetoothService uartService = await getUartAtmotubeService();
+    // List<BluetoothCharacteristic> uartCharacteristics =
+    //     await getCharacteristics(uartService);
+
+    device!.state.listen((event) {
+      if (event == BluetoothDeviceState.disconnected) {
+        // for (BluetoothCharacteristic c in characteristics) {
+        //   c.setNotifyValue(false);
+        // }
+        // for (BluetoothCharacteristic u in uartCharacteristics) {
+        //   u.setNotifyValue(false);
+        // }
+        subscription?.cancel();
+        subscription2?.cancel();
+      }
+    });
+  } //hadleStreams
+
   /// [dropConnection] a method that handles device disconnection action
   Future<void> dropConnection() async {
     // close the streams when atmotube no longer connected
+    handleStreams();
     satm.close();
     satm = StreamController();
     hatm.close();
@@ -103,6 +129,9 @@ class Atmotuber {
     var connected = await flutterBlue.connectedDevices;
     for (var element in connected) {
       if (element.name == DeviceServiceConfig().deviceName) {
+        element.state.listen((event) {
+          //(event);
+        });
         await element.disconnect();
         _handleBluetoothDeviceState(BluetoothDeviceState.disconnected);
         shouldStop = true;
@@ -286,7 +315,7 @@ class Atmotuber {
         vocCharacteristics.value.map((event) => {"voc": event});
 
     //  update atmotubeData object and listen to its changes.
-    StreamGroup.merge([status, bme, pm, voc]).listen((event) {
+    subscription = StreamGroup.merge([status, bme, pm, voc]).listen((event) {
       //print(event);
       if (event.entries.first.value.isNotEmpty) {
         //print("${event.entries.first.value}");
@@ -314,9 +343,11 @@ class Atmotuber {
     getHist(characteristics);
     // stream object creation
     //listener
-    hatm.stream.listen((event) {
-      callback(event);
-    });
+    hatm.stream.listen(
+      (event) {
+        callback(event);
+      },
+    );
   } // histwrapper
 
   // /// [getAtmotubeHistObject] A method that creates a Stream from an AtmotubeData object
@@ -349,7 +380,7 @@ class Atmotuber {
     List<DateTime> datetimeList = [];
     List<DateTime> datetimeRange = [];
     //listener
-    rx.value.listen((event) {
+    subscription2 = rx.value.listen((event) {
       final response = event.isEmpty
           ? 'None'
           : utf8.decoder.convert(event.getRange(0, 2).toList());
@@ -455,7 +486,7 @@ class Atmotuber {
               j = 0;
               Uint8List confirmTimestamp = DataConversion().timestampEncoder();
               Uint8List confirmCommand = DataConversion().commandEncoder('HOK');
-              //Uint8List zero = DataConversion().int32BigEndianBytes(0);
+              // Uint8List zero = DataConversion().int32BigEndianBytes(0);
               final txAcknowledge = Uint8List.fromList([
                 confirmCommand,
                 /*zero,*/
