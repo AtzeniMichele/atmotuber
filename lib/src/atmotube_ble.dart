@@ -372,6 +372,8 @@ class Atmotuber {
     await rx.setNotifyValue(true);
     await tx.write(txCommand, withoutResponse: true);
 
+    Timer? timeout;
+
     //init
     int previousPacketNumber = 0;
     int packetTotal = 0;
@@ -381,6 +383,16 @@ class Atmotuber {
     List<DateTime> datetimeRange = [];
     //listener
     subscription2 = rx.value.listen((event) {
+
+      //setup timer for end of history if no communication for 10 seconds
+      if (timeout != null) timeout!.cancel();
+      timeout = Timer(const Duration(seconds: 10), () async {
+        await rx.setNotifyValue(false);
+        subscription2?.cancel();
+        cancelStreamHistory();
+        //print('History done');
+      });
+
       final response = event.isEmpty
           ? 'None'
           : utf8.decoder.convert(event.getRange(0, 2).toList());
