@@ -383,7 +383,6 @@ class Atmotuber {
     List<DateTime> datetimeRange = [];
     //listener
     subscription2 = rx.value.listen((event) {
-
       //setup timer for end of history if no communication for 10 seconds
       if (timeout != null) timeout!.cancel();
       timeout = Timer(const Duration(seconds: 10), () async {

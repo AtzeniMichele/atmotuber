@@ -1,3 +1,6 @@
+## [0.1.4] 2022/10/20
+* Close history stream when no more data arrives until 30s
+
 ## [0.1.3] 2022/09/26
 * Handling duplication data after calling disconnect and connecting again. 
 
