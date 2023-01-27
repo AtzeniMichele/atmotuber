@@ -143,6 +143,7 @@ class Atmotuber {
   Future<void> cancelStreamRealTime() async {
     satm.close();
     satm = StreamController();
+    subscription!.cancel();
   } //cancelStreamRealTime
 
   /// [cancelStreamHistory] is a method to stop listening the Atomutber Stream objects
@@ -348,6 +349,7 @@ class Atmotuber {
         callback(event);
       },
     );
+    // to do throw error + timer
   } // histwrapper
 
   // /// [getAtmotubeHistObject] A method that creates a Stream from an AtmotubeData object

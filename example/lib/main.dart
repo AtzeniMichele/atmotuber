@@ -66,136 +66,139 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          //crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: ElevatedButton(
-                child: const Text(
-                  'Connect ATMOTUBE',
-                  style: TextStyle(fontSize: 20.0),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            //crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: ElevatedButton(
+                  child: const Text(
+                    'Connect ATMOTUBE',
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                  onPressed: () async {
+                    await connectDevice();
+                    _status = atm2.getDeviceState();
+                    if (_status == 'connected') {
+                      const snackBar = SnackBar(
+                        content: const Text('Connected!'),
+                        backgroundColor: Colors.green,
+                      );
+                      showsnack(snackBar);
+                    } else if (_status == 'disconnected') {
+                      const snackBar = SnackBar(
+                        content: const Text('Not Connected!'),
+                        backgroundColor: Colors.red,
+                      );
+                      showsnack(snackBar);
+                    }
+                  },
                 ),
-                onPressed: () async {
-                  await connectDevice();
-                  _status = atm2.getDeviceState();
-                  if (_status == 'connected') {
-                    const snackBar = SnackBar(
-                      content: const Text('Connected!'),
-                      backgroundColor: Colors.green,
+              ),
+              Center(
+                child: ElevatedButton(
+                  child: const Text(
+                    'Disconnect ATMOTUBE',
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                  onPressed: () async {
+                    await atm2.dropConnection();
+                    _status = atm2.getDeviceState();
+                    if (_status == 'disconnected') {
+                      const snackBar = SnackBar(
+                        content: const Text('Not Connected anymore!'),
+                        backgroundColor: Colors.red,
+                      );
+                      showsnack(snackBar);
+                    }
+                  },
+                ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  onPressed: (() async {
+                    await dataTaker();
+                  }),
+                  child: const Text(
+                    'get data',
+                    style: const TextStyle(fontSize: 20.0),
+                  ),
+                ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  onPressed: (() async {
+                    await dataHist();
+                  }),
+                  child: const Text(
+                    'get history',
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  onPressed: (() async {
+                    await atm2.cancelStreamHistory();
+                  }),
+                  child: const Text(
+                    'cancel stream',
+                    style: const TextStyle(fontSize: 20.0),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              const SizedBox(
+                height: 30,
+                width: 360,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Real-time data',
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.w400)),
+                ),
+              ),
+              Center(
+                child: ValueListenableBuilder(
+                  valueListenable: history /* dataGot*/,
+                  builder: (context, AtmotubeData data, child) {
+                    List list = [
+                      data.datetime,
+                      data.status,
+                      data.bme280,
+                      data.pm,
+                      data.voc
+                    ];
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: list.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Column(
+                              children: <Widget>[
+                                ListTile(
+                                  title: Text(names[index]),
+                                  subtitle: Text(list[index].toString()),
+                                ),
+                                const Divider(height: 2.0)
+                              ],
+                            );
+                          },
+                        )
+                      ],
                     );
-                    showsnack(snackBar);
-                  } else if (_status == 'disconnected') {
-                    const snackBar = SnackBar(
-                      content: const Text('Not Connected!'),
-                      backgroundColor: Colors.red,
-                    );
-                    showsnack(snackBar);
-                  }
-                },
-              ),
-            ),
-            Center(
-              child: ElevatedButton(
-                child: const Text(
-                  'Disconnect ATMOTUBE',
-                  style: TextStyle(fontSize: 20.0),
+                  },
                 ),
-                onPressed: () async {
-                  await atm2.dropConnection();
-                  _status = atm2.getDeviceState();
-                  if (_status == 'disconnected') {
-                    const snackBar = SnackBar(
-                      content: const Text('Not Connected anymore!'),
-                      backgroundColor: Colors.red,
-                    );
-                    showsnack(snackBar);
-                  }
-                },
-              ),
-            ),
-            Center(
-              child: ElevatedButton(
-                onPressed: (() async {
-                  await dataTaker();
-                }),
-                child: const Text(
-                  'get data',
-                  style: const TextStyle(fontSize: 20.0),
-                ),
-              ),
-            ),
-            Center(
-              child: ElevatedButton(
-                onPressed: (() async {
-                  await dataHist();
-                }),
-                child: const Text(
-                  'get history',
-                  style: TextStyle(fontSize: 20.0),
-                ),
-              ),
-            ),
-            Center(
-              child: ElevatedButton(
-                onPressed: (() async {
-                  await atm2.cancelStreamHistory();
-                }),
-                child: const Text(
-                  'cancel stream',
-                  style: const TextStyle(fontSize: 20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-            const SizedBox(
-              height: 30,
-              width: 360,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Real-time data',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400)),
-              ),
-            ),
-            Center(
-              child: ValueListenableBuilder(
-                valueListenable: history /* dataGot*/,
-                builder: (context, AtmotubeData data, child) {
-                  List list = [
-                    data.datetime,
-                    data.status,
-                    data.bme280,
-                    data.pm,
-                    data.voc
-                  ];
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemCount: list.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Column(
-                            children: <Widget>[
-                              ListTile(
-                                title: Text(names[index]),
-                                subtitle: Text(list[index].toString()),
-                              ),
-                              const Divider(height: 2.0)
-                            ],
-                          );
-                        },
-                      )
-                    ],
-                  );
-                },
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );
