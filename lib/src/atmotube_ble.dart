@@ -150,6 +150,7 @@ class Atmotuber {
   Future<void> cancelStreamHistory() async {
     hatm.close();
     hatm = StreamController();
+    subscription2!.cancel();
   } //cancelStreamHistory
 
   /// [getAtmotubeService] a method that handles device ble services
