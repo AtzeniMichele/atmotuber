@@ -441,8 +441,8 @@ class Atmotuber {
               break;
             }
             int packetNumber = event.elementAt(3);
-            //print('sent history packet number: {$packetNumber}');
-            //print(event);
+            print('sent history packet number: {$packetNumber}');
+            print(event);
 
             // extract only the data
             List<int> data = event.getRange(4, event.length).toList();
@@ -476,13 +476,13 @@ class Atmotuber {
               int pm10 =
                   DataConversion().getConversion(subset, 12, 13); // microg / m3
 
-              // print('temperature is: {$temp}');
-              // print('humidity is: {$humidity}');
-              // print('voc is: {$voc}');
-              // print('pressure is: {$pressure}');
-              // print('pm1 is: {$pm1}');
-              // print('pm2 is: {$pm2}');
-              // print('pm10 is: {$pm10}');
+              print('temperature is: {$temp}');
+              print('humidity is: {$humidity}');
+              print('voc is: {$voc}');
+              print('pressure is: {$pressure}');
+              print('pm1 is: {$pm1}');
+              print('pm2 is: {$pm2}');
+              print('pm10 is: {$pm10}');
 
               // update an AtmotubeData object with history values
               atmotubeDataHist = atmotubeDataHist.copyWith(
