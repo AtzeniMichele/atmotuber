@@ -239,7 +239,7 @@ class Atmotuber {
           data4 = data4.map((e) => e / 100).toList();
           // filter for non interested measurements
           if (data4.first > 1000) {
-            data4 = ['Nan', 'Nan', 'NaN', 'NaN'];
+            data4 = ['NaN', 'NaN', 'NaN', 'NaN'];
           }
           atmotubeData = atmotubeData.copyWith(
               datetime: DateTime.now(),
