@@ -398,7 +398,7 @@ class Atmotuber {
       final response = event.isEmpty
           ? 'None'
           : utf8.decoder.convert(event.getRange(0, 2).toList());
-      //print('The device response is {$response}');
+      // print('The device response is {$response}');
 
       switch (response) {
         case 'HO':
@@ -441,8 +441,8 @@ class Atmotuber {
               break;
             }
             int packetNumber = event.elementAt(3);
-            print('sent history packet number: {$packetNumber}');
-            print(event);
+            // print('sent history packet number: {$packetNumber}');
+            // print(event);
 
             // extract only the data
             List<int> data = event.getRange(4, event.length).toList();
@@ -469,27 +469,64 @@ class Atmotuber {
                   1000; // from ppb to ppm
               double pressure = DataConversion().getConversion(subset, 4, 7) /
                   100; // from mbar * 100 to mbar
-              int pm1 =
-                  DataConversion().getConversion(subset, 8, 9); // microg / m3
-              int pm2 =
-                  DataConversion().getConversion(subset, 10, 11); // microg / m3
-              int pm10 =
-                  DataConversion().getConversion(subset, 12, 13); // microg / m3
 
-              print('temperature is: {$temp}');
-              print('humidity is: {$humidity}');
-              print('voc is: {$voc}');
-              print('pressure is: {$pressure}');
-              print('pm1 is: {$pm1}');
-              print('pm2 is: {$pm2}');
-              print('pm10 is: {$pm10}');
+              // check whether there is an actual measurement or a saturation value of 255 (i.e. no PM measurement):
+              int? pm1;
+              int? pm2;
+              int? pm10;
+              if (subset
+                      .getRange(8, 10)
+                      .toList()
+                      .reversed
+                      .toList()
+                      .any((element) => element != 255) ||
+                  subset
+                      .getRange(10, 12)
+                      .toList()
+                      .reversed
+                      .toList()
+                      .any((element) => element != 255) ||
+                  subset
+                      .getRange(12, 14)
+                      .toList()
+                      .reversed
+                      .toList()
+                      .any((element) => element != 255)) {
+                pm1 =
+                    DataConversion().getConversion(subset, 8, 9); // microg / m3
+                pm2 = DataConversion()
+                    .getConversion(subset, 10, 11); // microg / m3
+                pm10 = DataConversion()
+                    .getConversion(subset, 12, 13); // microg / m3
+              }
+
+              // print('temperature is: {$temp}');
+              // print('humidity is: {$humidity}');
+              // print('voc is: {$voc}');
+              // print('pressure is: {$pressure}');
+              // print('pm1 is: {${pm1 ?? 0}}');
+              // print('pm2 is: {${pm2 ?? 0}}');
+              // print('pm10 is: {${pm10 ?? 0}}');
 
               // update an AtmotubeData object with history values
-              atmotubeDataHist = atmotubeDataHist.copyWith(
-                  datetime: datetimeRange[i],
-                  bme280: [temp, humidity, pressure],
-                  pm: [pm1, pm2, pm10, 0],
-                  voc: [voc]);
+              if ([pm1, pm2, pm10].any((element) => element != null)) {
+                atmotubeDataHist = atmotubeDataHist.copyWith(
+                    datetime: datetimeRange[i],
+                    bme280: [temp, humidity, pressure],
+                    pm: [pm1, pm2, pm10, 0],
+                    voc: [voc]);
+              } else {
+                atmotubeDataHist = atmotubeDataHist.copyWith(
+                    datetime: datetimeRange[i],
+                    bme280: [temp, humidity, pressure],
+                    pm: ['NaN', 'NaN', 'NaN', 'NaN'],
+                    voc: [voc]);
+              }
+              // atmotubeDataHist = atmotubeDataHist.copyWith(
+              //     datetime: datetimeRange[i],
+              //     bme280: [temp, humidity, pressure],
+              //     pm: [pm1, pm2, pm10, 0],
+              //     voc: [voc]);
               hatm.add(atmotubeDataHist);
             }
 
