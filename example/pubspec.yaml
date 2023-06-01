@@ -36,7 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   atmotuber: 
     path: ../
-  flutter_blue: 
+  #flutter_blue: 
+  
 
 dev_dependencies:
 

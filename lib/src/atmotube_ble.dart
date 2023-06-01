@@ -4,19 +4,20 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:typed_data';
 import 'package:collection/collection.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+//import 'package:flutter_blue/flutter_blue.dart';
 import 'package:atmotuber/src/model.dart';
 import 'package:atmotuber/src/device_info.dart';
 import 'package:atmotuber/src/uart_info.dart';
 import 'package:atmotuber/src/utils.dart';
 import 'package:atmotuber/src/errors/atmotube_connection_exception.dart';
 import 'package:atmotuber/src/errors/atmotube_not_near_exception.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// [Atmotuber] is a class that wraps all the methods that can be used for interacting with an ATMOTUBE  Pro device
 
 class Atmotuber {
   // init
-  FlutterBlue flutterBlue = FlutterBlue.instance;
+  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
   BluetoothDevice? device;
   bool shouldStop = false;
   var atmotubeData = const AtmotubeData();
@@ -102,7 +103,7 @@ class Atmotuber {
     // List<BluetoothCharacteristic> uartCharacteristics =
     //     await getCharacteristics(uartService);
 
-    device!.state.listen((event) {
+    device!.state.listen((event) async {
       if (event == BluetoothDeviceState.disconnected) {
         // for (BluetoothCharacteristic c in characteristics) {
         //   c.setNotifyValue(false);
@@ -110,8 +111,8 @@ class Atmotuber {
         // for (BluetoothCharacteristic u in uartCharacteristics) {
         //   u.setNotifyValue(false);
         // }
-        subscription?.cancel();
-        subscription2?.cancel();
+        await subscription?.cancel();
+        await subscription2?.cancel();
       }
     });
   } //hadleStreams
@@ -141,16 +142,16 @@ class Atmotuber {
 
   /// [cancelStreamRealTime] is a method to stop listening the Atomutber Stream objects
   Future<void> cancelStreamRealTime() async {
-    satm.close();
+    await satm.close();
     satm = StreamController();
-    subscription!.cancel();
+    await subscription!.cancel();
   } //cancelStreamRealTime
 
   /// [cancelStreamHistory] is a method to stop listening the Atomutber Stream objects
   Future<void> cancelStreamHistory() async {
-    hatm.close();
+    await hatm.close();
     hatm = StreamController();
-    subscription2!.cancel();
+    await subscription2!.cancel();
   } //cancelStreamHistory
 
   /// [getAtmotubeService] a method that handles device ble services
@@ -390,8 +391,8 @@ class Atmotuber {
       if (timeout != null) timeout!.cancel();
       timeout = Timer(const Duration(seconds: 10), () async {
         await rx.setNotifyValue(false);
-        subscription2?.cancel();
-        cancelStreamHistory();
+        await subscription2?.cancel();
+        await cancelStreamHistory();
         //print('History done');
       });
 
