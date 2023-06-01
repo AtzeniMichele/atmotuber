@@ -164,7 +164,7 @@ class HomePageState extends State<HomePage> {
               ),
               Center(
                 child: ValueListenableBuilder(
-                  valueListenable: history /* dataGot*/,
+                  valueListenable: /* history */ dataGot,
                   builder: (context, AtmotubeData data, child) {
                     List list = [
                       data.datetime,

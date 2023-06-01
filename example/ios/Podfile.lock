@@ -1,16 +1,16 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_blue (0.0.1):
+  - flutter_blue_plus (0.0.1):
     - Flutter
-    - flutter_blue/Protos (= 0.0.1)
-  - flutter_blue/Protos (0.0.1):
+    - flutter_blue_plus/Protos (= 0.0.1)
+  - flutter_blue_plus/Protos (0.0.1):
     - Flutter
-    - Protobuf (~> 3.11.4)
-  - Protobuf (3.11.4)
+    - Protobuf (~> 3.21)
+  - Protobuf (3.23.2)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - flutter_blue (from `.symlinks/plugins/flutter_blue/ios`)
+  - flutter_blue_plus (from `.symlinks/plugins/flutter_blue_plus/ios`)
 
 SPEC REPOS:
   trunk:
@@ -19,13 +19,13 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  flutter_blue:
-    :path: ".symlinks/plugins/flutter_blue/ios"
+  flutter_blue_plus:
+    :path: ".symlinks/plugins/flutter_blue_plus/ios"
 
 SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  flutter_blue: eeb381dc4727a0954dede73515f683865494b370
-  Protobuf: 176220c526ad8bd09ab1fb40a978eac3fef665f7
+  flutter_blue_plus: 316ac8d1179789616d2c148e8a03c37720e63933
+  Protobuf: 5df4e9d2abd535fb675c68d171f6bc87983d27a6
 
 PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
 
