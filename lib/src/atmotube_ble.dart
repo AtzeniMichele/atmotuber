@@ -4,19 +4,20 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:typed_data';
 import 'package:collection/collection.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+//import 'package:flutter_blue/flutter_blue.dart';
 import 'package:atmotuber/src/model.dart';
 import 'package:atmotuber/src/device_info.dart';
 import 'package:atmotuber/src/uart_info.dart';
 import 'package:atmotuber/src/utils.dart';
 import 'package:atmotuber/src/errors/atmotube_connection_exception.dart';
 import 'package:atmotuber/src/errors/atmotube_not_near_exception.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// [Atmotuber] is a class that wraps all the methods that can be used for interacting with an ATMOTUBE  Pro device
 
 class Atmotuber {
   // init
-  FlutterBlue flutterBlue = FlutterBlue.instance;
+  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
   BluetoothDevice? device;
   bool shouldStop = false;
   var atmotubeData = const AtmotubeData();
