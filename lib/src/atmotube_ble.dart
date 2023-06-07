@@ -66,7 +66,7 @@ class Atmotuber {
     if (_deviceState == BluetoothDeviceState.disconnected) {
       // scan for atmotube
       dynamic scan =
-          await flutterBlue.startScan(timeout: const Duration(seconds: 6));
+          await flutterBlue.startScan(timeout: const Duration(seconds: 10));
 
       for (dynamic s in scan) {
         // looking for non null devices
