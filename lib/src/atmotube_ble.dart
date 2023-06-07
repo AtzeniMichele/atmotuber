@@ -144,14 +144,18 @@ class Atmotuber {
   Future<void> cancelStreamRealTime() async {
     await satm.close();
     satm = StreamController();
-    await subscription!.cancel();
+    if (subscription != null) {
+      await subscription!.cancel();
+    }
   } //cancelStreamRealTime
 
   /// [cancelStreamHistory] is a method to stop listening the Atomutber Stream objects
   Future<void> cancelStreamHistory() async {
     await hatm.close();
     hatm = StreamController();
-    await subscription2!.cancel();
+    if (subscription2 != null) {
+      await subscription2!.cancel();
+    }
   } //cancelStreamHistory
 
   /// [getAtmotubeService] a method that handles device ble services
