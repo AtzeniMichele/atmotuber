@@ -103,18 +103,20 @@ class Atmotuber {
     // List<BluetoothCharacteristic> uartCharacteristics =
     //     await getCharacteristics(uartService);
 
-    device!.state.listen((event) async {
-      if (event == BluetoothDeviceState.disconnected) {
-        // for (BluetoothCharacteristic c in characteristics) {
-        //   c.setNotifyValue(false);
-        // }
-        // for (BluetoothCharacteristic u in uartCharacteristics) {
-        //   u.setNotifyValue(false);
-        // }
-        await subscription?.cancel();
-        await subscription2?.cancel();
-      }
-    });
+    if (device != null) {
+      device!.state.listen((event) async {
+        if (event == BluetoothDeviceState.disconnected) {
+          // for (BluetoothCharacteristic c in characteristics) {
+          //   c.setNotifyValue(false);
+          // }
+          // for (BluetoothCharacteristic u in uartCharacteristics) {
+          //   u.setNotifyValue(false);
+          // }
+          await subscription?.cancel();
+          await subscription2?.cancel();
+        }
+      });
+    }
   } //hadleStreams
 
   /// [dropConnection] a method that handles device disconnection action
