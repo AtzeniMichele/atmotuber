@@ -76,7 +76,7 @@ class Atmotuber {
     await dropConnectionPlus();
 
     // scan for atmotube
-    Completer<BluetoothDevice> completer = Completer();
+    Completer<BluetoothDevice?> completer = Completer();
     flutterBlue.startScan();
     Stopwatch stopwatch = Stopwatch()..start();
     flutterBlue.scanResults.listen(
@@ -104,10 +104,11 @@ class Atmotuber {
           stopwatch.stop();
         }
         if (stopwatch.elapsed.inSeconds > 10) {
-          completer.completeError(AtmotubeNotNearException(
-              message: 'ATMOTUBE is not near to you!'));
+          completer.complete();
           stopwatch.stop();
           stopScan();
+          throw AtmotubeNotNearException(
+              message: 'ATMOTUBE is not near to you!');
         }
       },
     );
