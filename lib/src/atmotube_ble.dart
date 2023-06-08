@@ -59,7 +59,7 @@ class Atmotuber {
   } // getDeviceState
 
   /// [connect] a  method that stops the scan
-  void connect() async {
+  Future<void> connect() async {
     await searchAtmotubePlus();
     if (device != null) {
       getDeviceState();
@@ -106,12 +106,14 @@ class Atmotuber {
         if (stopwatch.elapsed.inSeconds > 10) {
           completer.completeError(AtmotubeNotNearException(
               message: 'ATMOTUBE is not near to you!'));
+          stopwatch.stop();
+          stopScan();
         }
       },
     );
     // setup for later timer.periodic call
     shouldStop = false;
-    return await completer.future;
+    return completer.future;
   } // searchAtmotube
 
   // /// [searchAtmotube] a method that handles device connection action
@@ -248,11 +250,14 @@ class Atmotuber {
   } //cancelStreamHistory
 
   /// [cancelAllStreams] is a method to stop listening the Atomutber Stream objects
-  void cancelAllStreams() async {
+  Future<void> cancelAllStreams() async {
     if (device != null) {
       await statusStream?.cancel();
+      statusStream = null;
       await subscription?.cancel();
+      subscription = null;
       await subscription2?.cancel();
+      subscription2 = null;
       await hatm.close();
       hatm = StreamController();
       await satm.close();
@@ -440,7 +445,7 @@ class Atmotuber {
   /// [histwrapper] A wrapper method that handles device history data collection
   Future<void> histwrapper({required Function callback}) async {
     // check if an atmotube is already connected and ready for the data collection
-    if (_deviceState == BluetoothDeviceState.disconnected) {
+    if (deviceState == "disconnected") {
       throw AtmotubeConnectionException(
           message: 'Please first connect ATMOTUBE Pro');
     }
