@@ -59,6 +59,7 @@ class Atmotuber {
 
     btStream = flutterBlue.state.listen((event) {
       btState = event;
+      print(btState);
     });
     return btState;
   } // getDeviceState
@@ -74,30 +75,24 @@ class Atmotuber {
   } // getDeviceState
 
   Future<bool> checkBluetooth() async {
-    return await flutterBlue.isOn;
+    bool isOn = await flutterBlue.isOn;
+    if (isOn) {
+      return isOn;
+    } else {
+      throw AtmotubeConnectionException(message: 'Bluetooth is off');
+    }
   }
 
   /// [connect] a  method that stops the scan
   Future<void> connect() async {
-    if (btStream != null) {
-      btStream!.cancel();
+    await searchAtmotubePlus();
+    if (device != null) {
+      getDeviceState();
+      print(deviceState);
+      await device!.connect();
+      getDeviceState();
+      print(deviceState);
     }
-
-    btStream = flutterBlue.state.listen((event) async {
-      btState = event;
-      if (btState == BluetoothState.on) {
-        await searchAtmotubePlus();
-        if (device != null) {
-          getDeviceState();
-          print(deviceState);
-          await device!.connect();
-          getDeviceState();
-          print(deviceState);
-        }
-      } else if (btState == BluetoothState.off) {
-        throw AtmotubeConnectionException(message: 'Bluetooth is off');
-      }
-    });
   } // getDeviceState
 
   /// [searchAtmotubePlus] a method that handles device connection action
