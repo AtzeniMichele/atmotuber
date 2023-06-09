@@ -30,6 +30,8 @@ class Atmotuber {
   StreamSubscription? statusStream;
   String deviceState = 'disconnected';
   Completer<BluetoothDevice>? completer;
+  StreamSubscription<BluetoothState>? btStream;
+  BluetoothState btState = BluetoothState.unknown;
 
   /// [getDeviceState] a  method that handles device connection state
   String getDeviceState() {
@@ -49,6 +51,18 @@ class Atmotuber {
     return deviceState;
   } // getDeviceState
 
+  /// [getDeviceState] a  method that handles device connection state
+  BluetoothState getBluetoothState() {
+    if (btStream != null) {
+      btStream!.cancel();
+    }
+
+    btStream = flutterBlue.state.listen((event) {
+      btState = event;
+    });
+    return btState;
+  } // getDeviceState
+
   /// [getDeviceId] a  method that catch device id (like MAC address)
   String getDeviceId() {
     return device != null ? device!.id.id : '';
@@ -65,8 +79,11 @@ class Atmotuber {
 
   /// [connect] a  method that stops the scan
   Future<void> connect() async {
-    bool isOn = await checkBluetooth();
-    if (isOn) {
+    getBluetoothState();
+    print(btState);
+    if (btState == BluetoothState.on ||
+        btState == BluetoothState.turningOn ||
+        btState == BluetoothState.unknown) {
       await searchAtmotubePlus();
       if (device != null) {
         getDeviceState();
@@ -75,7 +92,7 @@ class Atmotuber {
         getDeviceState();
         print(deviceState);
       }
-    } else {
+    } else if (btState == BluetoothState.off) {
       throw AtmotubeConnectionException(message: 'Bluetooth is off');
     }
   } // getDeviceState
