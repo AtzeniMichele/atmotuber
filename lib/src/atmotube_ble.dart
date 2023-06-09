@@ -29,7 +29,7 @@ class Atmotuber {
   StreamSubscription<List<int>>? subscription2;
   StreamSubscription? statusStream;
   String deviceState = 'disconnected';
-  Completer<BluetoothDevice>? completer;
+  Completer<BluetoothDevice?>? completer;
   StreamSubscription<BluetoothState>? btStream;
   BluetoothState btState = BluetoothState.unknown;
 
@@ -59,6 +59,7 @@ class Atmotuber {
 
     btStream = flutterBlue.state.listen((event) {
       btState = event;
+      print(btState);
     });
     return btState;
   } // getDeviceState
@@ -80,7 +81,6 @@ class Atmotuber {
   /// [connect] a  method that stops the scan
   Future<void> connect() async {
     getBluetoothState();
-    print(btState);
     if (btState == BluetoothState.on ||
         btState == BluetoothState.turningOn ||
         btState == BluetoothState.unknown) {
