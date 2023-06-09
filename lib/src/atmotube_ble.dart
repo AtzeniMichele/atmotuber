@@ -59,6 +59,10 @@ class Atmotuber {
     await flutterBlue.stopScan();
   } // getDeviceState
 
+  Future<bool> checkBluetooth() async {
+    return await flutterBlue.isOn;
+  }
+
   /// [connect] a  method that stops the scan
   Future<void> connect() async {
     bool isOn = await flutterBlue.isOn;
