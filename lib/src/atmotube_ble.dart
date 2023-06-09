@@ -29,7 +29,7 @@ class Atmotuber {
   StreamSubscription<List<int>>? subscription2;
   StreamSubscription? statusStream;
   String deviceState = 'disconnected';
-  Completer? completer;
+  Completer<BluetoothDevice>? completer;
 
   /// [getDeviceState] a  method that handles device connection state
   String getDeviceState() {
@@ -74,11 +74,14 @@ class Atmotuber {
   /// [searchAtmotubePlus] a method that handles device connection action
   /// [searchAtmotubePlus] a method that handles device connection action
   Future<BluetoothDevice?> searchAtmotubePlus([String? id]) async {
+    if (completer != null) {
+      completer!.complete;
+    }
     // before all, disconnect any atmotube connected
     await dropConnectionPlus();
 
     // scan for atmotube
-    Completer<BluetoothDevice?> completer = Completer();
+    completer = Completer();
     flutterBlue.startScan();
     Stopwatch stopwatch = Stopwatch()..start();
     flutterBlue.scanResults.listen(
@@ -100,15 +103,15 @@ class Atmotuber {
             print(device!.id.id);
           }
           if (device != null) {
-            completer.complete(device);
+            completer!.complete(device);
           }
           stopScan();
           stopwatch.stop();
         }
         if (stopwatch.elapsed.inSeconds > 10) {
-          completer.complete(device);
           stopwatch.stop();
           stopScan();
+          completer!.complete(device);
           throw AtmotubeNotNearException(
               message: 'ATMOTUBE is not near to you!');
         }
@@ -122,7 +125,7 @@ class Atmotuber {
     // });
     // setup for later timer.periodic call
     shouldStop = false;
-    return completer.future;
+    return completer?.future;
   } // searchAtmotube
 
   // /// [searchAtmotube] a method that handles device connection action
