@@ -51,7 +51,7 @@ class Atmotuber {
     return deviceState;
   } // getDeviceState
 
-  /// [getDeviceState] a  method that handles device connection state
+  /// [getBluetoothState] a  method that handles bt connection state
   BluetoothState getBluetoothState() {
     if (btStream != null) {
       btStream!.cancel();
@@ -59,7 +59,6 @@ class Atmotuber {
 
     btStream = flutterBlue.state.listen((event) {
       btState = event;
-      print(btState);
     });
     return btState;
   } // getDeviceState
@@ -80,21 +79,25 @@ class Atmotuber {
 
   /// [connect] a  method that stops the scan
   Future<void> connect() async {
-    getBluetoothState();
-    if (btState == BluetoothState.on ||
-        btState == BluetoothState.turningOn ||
-        btState == BluetoothState.unknown) {
-      await searchAtmotubePlus();
-      if (device != null) {
-        getDeviceState();
-        print(deviceState);
-        await device!.connect();
-        getDeviceState();
-        print(deviceState);
-      }
-    } else if (btState == BluetoothState.off) {
-      throw AtmotubeConnectionException(message: 'Bluetooth is off');
+    if (btStream != null) {
+      btStream!.cancel();
     }
+
+    btStream = flutterBlue.state.listen((event) async {
+      btState = event;
+      if (btState == BluetoothState.on) {
+        await searchAtmotubePlus();
+        if (device != null) {
+          getDeviceState();
+          print(deviceState);
+          await device!.connect();
+          getDeviceState();
+          print(deviceState);
+        }
+      } else if (btState == BluetoothState.off) {
+        throw AtmotubeConnectionException(message: 'Bluetooth is off');
+      }
+    });
   } // getDeviceState
 
   /// [searchAtmotubePlus] a method that handles device connection action
