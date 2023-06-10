@@ -34,9 +34,9 @@ class Atmotuber {
   BluetoothState btState = BluetoothState.unknown;
 
   /// [getDeviceState] a  method that handles device connection state
-  String getDeviceState() {
+  Future<String> getDeviceState() async {
     if (statusStream != null) {
-      statusStream!.cancel();
+      await statusStream!.cancel();
     }
     if (device != null) {
       statusStream = device!.state.listen((event) {
