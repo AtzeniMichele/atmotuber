@@ -101,7 +101,7 @@ class Atmotuber {
   /// [searchAtmotubePlus] a method that handles device connection action
   Future<BluetoothDevice?> searchAtmotubePlus([String? id]) async {
     if (completer != null) {
-      completer!.complete;
+      completer = null;
     }
     // before all, disconnect any atmotube connected
     await dropConnectionPlus();
