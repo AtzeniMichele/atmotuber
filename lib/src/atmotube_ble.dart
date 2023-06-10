@@ -133,9 +133,11 @@ class Atmotuber {
           }
           stopScan();
           stopwatch.stop();
+          stopwatch.reset();
         }
         if (stopwatch.elapsed.inSeconds > 10) {
           stopwatch.stop();
+          stopwatch.reset();
           stopScan();
           completer!.completeError(AtmotubeNotNearException(
               message: 'ATMOTUBE is not near to you!'));
