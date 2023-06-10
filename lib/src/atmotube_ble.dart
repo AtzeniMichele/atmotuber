@@ -222,7 +222,7 @@ class Atmotuber {
   Future<void> dropConnectionPlus() async {
     if (device != null) {
       // close the streams when atmotube no longer connected
-      await cancelAllStreams();
+      cancelAllStreams();
       device = null;
     }
 
@@ -288,7 +288,7 @@ class Atmotuber {
   } //cancelStreamHistory
 
   /// [cancelAllStreams] is a method to stop listening the Atomutber Stream objects
-  Future<void> cancelAllStreams() async {
+  void cancelAllStreams() async {
     if (device != null) {
       await statusStream?.cancel();
       statusStream = null;
