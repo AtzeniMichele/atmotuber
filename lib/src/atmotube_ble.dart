@@ -42,8 +42,10 @@ class Atmotuber {
       statusStream = device!.state.listen((event) {
         if (event == BluetoothDeviceState.disconnected) {
           deviceState = 'disconnected';
+          print(deviceState);
         } else if (event == BluetoothDeviceState.connected) {
           deviceState = 'connected';
+          print(deviceState);
         }
       });
       return deviceState;
@@ -135,9 +137,8 @@ class Atmotuber {
         if (stopwatch.elapsed.inSeconds > 10) {
           stopwatch.stop();
           stopScan();
-          completer!.complete(device);
-          throw AtmotubeNotNearException(
-              message: 'ATMOTUBE is not near to you!');
+          completer!.completeError(AtmotubeNotNearException(
+              message: 'ATMOTUBE is not near to you!'));
         }
       },
     );
