@@ -222,7 +222,8 @@ class Atmotuber {
   Future<void> dropConnectionPlus() async {
     if (device != null) {
       // close the streams when atmotube no longer connected
-      cancelAllStreams();
+      await cancelAllStreams();
+      device = null;
     }
 
     await flutterBlue.stopScan();
