@@ -48,7 +48,7 @@ class Atmotuber {
       });
       return deviceState;
     }
-    return deviceState;
+    return 'disconnected';
   } // getDeviceState
 
   /// [getBluetoothState] a  method that handles bt connection state
