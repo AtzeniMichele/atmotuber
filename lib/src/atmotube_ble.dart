@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:async/async.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -698,7 +700,12 @@ class Atmotuber {
               // print(txAcknowledge);
               //print('new packet arriving');
               // Future.delayed(const Duration(seconds: 1), () {
-              await tx.write(txAcknowledge, withoutResponse: true);
+              if (Platform.isAndroid) {
+                Future.delayed(const Duration(milliseconds: 100));
+                await tx.write(txAcknowledge, withoutResponse: true);
+              } else {
+                tx.write(txAcknowledge, withoutResponse: true);
+              }
               // });
             } else {
               // update for loop in HD case
