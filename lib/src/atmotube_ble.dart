@@ -537,7 +537,7 @@ class Atmotuber {
     List<DateTime> datetimeList = [];
     List<DateTime> datetimeRange = [];
     //listener
-    subscription2 = rx.value.listen((event) {
+    subscription2 = rx.value.listen((event) async {
       //setup timer for end of history if no communication for 10 seconds
       if (timeout != null) timeout!.cancel();
       timeout = Timer(const Duration(seconds: 10), () async {
@@ -698,7 +698,7 @@ class Atmotuber {
               // print(txAcknowledge);
               //print('new packet arriving');
               // Future.delayed(const Duration(seconds: 1), () {
-              tx.write(txAcknowledge, withoutResponse: true);
+              await tx.write(txAcknowledge, withoutResponse: true);
               // });
             } else {
               // update for loop in HD case
