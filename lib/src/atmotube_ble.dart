@@ -701,8 +701,16 @@ class Atmotuber {
               //print('new packet arriving');
               // Future.delayed(const Duration(seconds: 1), () {
               if (Platform.isAndroid) {
-                Future.delayed(const Duration(milliseconds: 100));
-                await tx.write(txAcknowledge, withoutResponse: true);
+                bool done = false;
+                while (done) {
+                  try {
+                    Future.delayed(const Duration(milliseconds: 100));
+                    await tx.write(txAcknowledge, withoutResponse: true);
+                    done = true;
+                  } catch (e) {
+                    print(e);
+                  }
+                }
               } else {
                 tx.write(txAcknowledge, withoutResponse: true);
               }
