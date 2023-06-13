@@ -35,6 +35,26 @@ class Atmotuber {
   StreamSubscription<BluetoothState>? btStream;
   BluetoothState btState = BluetoothState.unknown;
 
+  /// [reset] is a method that reinitialize all the Atmotuber variables
+  void reset() {
+    cancelAllStreams();
+    flutterBlue = FlutterBluePlus.instance;
+    device = null;
+    shouldStop = false;
+    atmotubeData = const AtmotubeData();
+    atmotubeDataHist = const AtmotubeData();
+    satm = StreamController();
+    hatm = StreamController();
+    _deviceState = BluetoothDeviceState.disconnected;
+    subscription = null;
+    subscription2 = null;
+    statusStream = null;
+    deviceState = 'disconnected';
+    completer = null;
+    btStream = null;
+    btState = BluetoothState.unknown;
+  }
+
   /// [getDeviceState] a  method that handles device connection state
   Future<String> getDeviceState() async {
     if (statusStream != null) {
