@@ -704,7 +704,7 @@ class Atmotuber {
                 bool done = false;
                 while (done) {
                   try {
-                    Future.delayed(const Duration(milliseconds: 100));
+                    Future.delayed(const Duration(milliseconds: 300));
                     await tx.write(txAcknowledge, withoutResponse: true);
                     done = true;
                   } catch (e) {
