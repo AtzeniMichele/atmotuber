@@ -37,7 +37,6 @@ class Atmotuber {
 
   /// [reset] is a method that reinitialize all the Atmotuber variables
   void reset() {
-    cancelAllStreams();
     flutterBlue = FlutterBluePlus.instance;
     device = null;
     shouldStop = false;
