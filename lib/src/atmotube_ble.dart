@@ -697,22 +697,11 @@ class Atmotuber {
                 /*zero,*/
                 confirmTimestamp
               ].expand((x) => x).toList());
-              // print(txAcknowledge);
-              //print('new packet arriving');
-              // Future.delayed(const Duration(seconds: 1), () {
               if (Platform.isAndroid) {
-                bool done = false;
-                while (done) {
-                  try {
-                    Future.delayed(const Duration(milliseconds: 300));
-                    await tx.write(txAcknowledge, withoutResponse: true);
-                    done = true;
-                  } catch (e) {
-                    print(e);
-                  }
-                }
+                await Future.delayed(Duration(seconds: 1));
+                await tx.write(txAcknowledge, withoutResponse: true);
               } else {
-                tx.write(txAcknowledge, withoutResponse: true);
+                await tx.write(txAcknowledge, withoutResponse: true);
               }
               // });
             } else {
