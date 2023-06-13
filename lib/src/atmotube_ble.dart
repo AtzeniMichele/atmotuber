@@ -496,7 +496,7 @@ class Atmotuber {
         await getCharacteristics(service);
 
     // get history of atmotube not already synced
-    getHist(characteristics);
+    await getHist(characteristics);
     // stream object creation
     //listener
     hatm.stream.listen(
@@ -513,7 +513,7 @@ class Atmotuber {
   // } // getAtmotubeHistObject
 
   /// [getHist] A method that handles device history data via UART communication (sending commands via tx channel and listening via rx channel)
-  void getHist(List<BluetoothCharacteristic> characteristics) async {
+  Future<void> getHist(List<BluetoothCharacteristic> characteristics) async {
     BluetoothCharacteristic rx = characteristics.firstWhere((element) =>
         element.uuid.toString() == HistoryServiceConfig().rxCharacteristicId);
     BluetoothCharacteristic tx = characteristics.firstWhere((element) =>
