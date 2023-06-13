@@ -698,7 +698,7 @@ class Atmotuber {
                 confirmTimestamp
               ].expand((x) => x).toList());
               if (Platform.isAndroid) {
-                await Future.delayed(Duration(seconds: 1));
+                await Future.delayed(const Duration(seconds: 1));
                 await tx.write(txAcknowledge, withoutResponse: true);
               } else {
                 await tx.write(txAcknowledge, withoutResponse: true);
