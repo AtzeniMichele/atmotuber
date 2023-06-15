@@ -561,12 +561,17 @@ class Atmotuber {
     subscription2 = rx.value.listen((event) async {
       //setup timer for end of history if no communication for 10 seconds
       if (timeout != null) timeout!.cancel();
-      timeout = Timer(const Duration(seconds: 10), () async {
-        await rx.setNotifyValue(false);
-        await subscription2?.cancel();
-        await cancelStreamHistory();
-        //print('History done');
-      });
+      timeout = Timer(
+          const Duration(seconds: 10),
+          await () async {
+            if (Platform.isAndroid) {
+              await Future.delayed(const Duration(seconds: 1));
+            }
+            await rx.setNotifyValue(false);
+            await subscription2?.cancel();
+            await cancelStreamHistory();
+            //print('History done');
+          });
 
       final response = event.isEmpty
           ? 'None'
