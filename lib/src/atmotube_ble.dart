@@ -36,8 +36,8 @@ class Atmotuber {
   BluetoothState btState = BluetoothState.unknown;
 
   /// [reset] is a method that reinitialize all the Atmotuber variables
-  void reset() {
-    flutterBlue = FlutterBluePlus.instance;
+  void reset() async {
+    await dropConnectionPlus();
     device = null;
     shouldStop = false;
     atmotubeData = const AtmotubeData();
@@ -52,6 +52,7 @@ class Atmotuber {
     completer = null;
     btStream = null;
     btState = BluetoothState.unknown;
+    flutterBlue = FlutterBluePlus.instance;
   }
 
   /// [getDeviceState] a  method that handles device connection state
